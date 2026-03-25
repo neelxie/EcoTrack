@@ -6,6 +6,7 @@ backend/storage/framework/cache/*
 backend/storage/framework/sessions/*
 backend/storage/framework/views/*
 backend/bootstrap/cache/*
+vendor/
 
 # Angular
 frontend/node_modules/
