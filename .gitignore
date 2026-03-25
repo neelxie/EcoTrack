@@ -1,0 +1,20 @@
+# Laravel
+backend/.env
+backend/vendor/
+backend/storage/logs/*
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/bootstrap/cache/*
+
+# Angular
+frontend/node_modules/
+frontend/dist/
+
+# Drizzle
+drizzle/node_modules/
+
+# Root
+node_modules/
+.env
+*.log

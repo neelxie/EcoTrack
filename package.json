@@ -1,0 +1,10 @@
+{
+  "name": "ecotrack",
+  "private": true,
+  "scripts": {
+    "frontend": "pnpm --filter frontend dev",
+    "drizzle:generate": "pnpm --filter drizzle generate",
+    "drizzle:migrate": "pnpm --filter drizzle migrate",
+    "drizzle:studio": "pnpm --filter drizzle studio"
+  }
+}
