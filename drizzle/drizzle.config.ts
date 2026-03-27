@@ -8,6 +8,7 @@ export default defineConfig({
   dbCredentials: {
     url: process.env.DATABASE_URL!,
   },
+  tablesFilter: ["stations", "readings", "alerts"],
   verbose: true,
-  strict: true,
+  strict: false,
 });

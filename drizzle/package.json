@@ -4,17 +4,17 @@
   "type": "module",
   "scripts": {
     "generate": "drizzle-kit generate",
-    "migrate":  "drizzle-kit migrate",
-    "studio":   "drizzle-kit studio",
-    "push":     "drizzle-kit push"
+    "migrate": "drizzle-kit migrate",
+    "studio": "drizzle-kit studio",
+    "push": "drizzle-kit push"
   },
   "dependencies": {
-    "drizzle-orm": "^0.30.0",
+    "drizzle-orm": "^0.45.1",
     "mysql2": "^3.9.0"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.21.0",
     "dotenv": "^16.0.0",
+    "drizzle-kit": "^0.31.10",
     "tsx": "^4.0.0",
     "typescript": "^5.4.0"
   }
