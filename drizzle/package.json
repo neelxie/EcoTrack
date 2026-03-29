@@ -4,9 +4,8 @@
   "type": "module",
   "scripts": {
     "generate": "drizzle-kit generate",
-    "migrate": "drizzle-kit migrate",
     "studio": "drizzle-kit studio",
-    "push": "drizzle-kit push"
+    "introspect": "drizzle-kit introspect"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.1",
