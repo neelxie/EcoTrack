@@ -1,0 +1,182 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #1565c0;
+  --color-primary-light: #1976d2;
+  --color-primary-dark: #0d47a1;
+  --color-secondary: #00897b;
+  --color-secondary-light: #26a69a;
+  --color-secondary-dark: #00695c;
+  --color-background: #f5f7fa;
+  --color-surface: #ffffff;
+  --color-error: #c62828;
+  --color-warning: #f57f17;
+  --color-success: #2e7d32;
+
+  --font-family-sans: "Inter", system-ui, sans-serif;
+
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-card-hover:
+    0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-elevated: 0 8px 16px rgba(0, 0, 0, 0.12);
+
+  --radius-card: 12px;
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    background-color: var(--color-background);
+    font-family: var(--font-family-sans);
+    color: #111827;
+    margin: 0;
+  }
+}
+
+@layer components {
+  .eco-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    padding: 1.5rem;
+    transition: box-shadow 0.2s;
+    &:hover {
+      box-shadow: var(--shadow-card-hover);
+    }
+  }
+
+  .eco-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.15s;
+    cursor: pointer;
+    border: none;
+    &:focus {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .eco-btn-primary {
+    @extend .eco-btn;
+    background: var(--color-primary);
+    color: white;
+    &:hover {
+      background: var(--color-primary-dark);
+    }
+  }
+
+  .eco-btn-secondary {
+    @extend .eco-btn;
+    background: var(--color-secondary);
+    color: white;
+    &:hover {
+      background: var(--color-secondary-dark);
+    }
+  }
+
+  .eco-btn-outlined {
+    @extend .eco-btn;
+    background: transparent;
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+    &:hover {
+      background: #eff6ff;
+    }
+  }
+
+  .eco-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    background: white;
+    transition: all 0.15s;
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.15);
+    }
+    &::placeholder {
+      color: #9ca3af;
+    }
+  }
+
+  .eco-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .eco-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .eco-badge-success {
+    @extend .eco-badge;
+    background: #dcfce7;
+    color: #166534;
+  }
+  .eco-badge-warning {
+    @extend .eco-badge;
+    background: #fef9c3;
+    color: #854d0e;
+  }
+  .eco-badge-error {
+    @extend .eco-badge;
+    background: #fee2e2;
+    color: #991b1b;
+  }
+  .eco-badge-info {
+    @extend .eco-badge;
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  .eco-table {
+    width: 100%;
+    font-size: 0.875rem;
+    th {
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #f3f4f6;
+      color: #1f2937;
+    }
+    tr:hover td {
+      background: #f9fafb;
+    }
+  }
+}
