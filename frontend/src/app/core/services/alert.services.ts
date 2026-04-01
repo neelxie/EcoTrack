@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, fromEvent, EMPTY } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Alert } from '../models';
-import { AuthService } from './auth.service';
+import { AuthService } from './auth.services';
 
 @Injectable({ providedIn: 'root' })
 export class AlertService {
