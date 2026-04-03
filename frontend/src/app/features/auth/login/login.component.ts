@@ -3,64 +3,108 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.services';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   template: `
-    <div
-      class="min-h-screen bg-background flex items-center justify-center p-4"
-    >
-      <div class="w-full max-w-md">
-        <div class="text-center mb-8">
-          <div
-            class="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center mx-auto mb-4"
-          >
-            <span class="text-white font-bold text-2xl">E</span>
-          </div>
-          <h1 class="text-2xl font-semibold text-gray-900">Welcome back</h1>
-          <p class="text-gray-500 text-sm mt-1">Sign in to EcoTrack</p>
+    <div class="eco-auth-wrap">
+      <div class="eco-auth-card">
+        <!-- Logo -->
+        <div class="eco-auth-logo-wrap">
+          <div class="eco-auth-logo">E</div>
+          <h1 class="eco-auth-title">Welcome back</h1>
+          <p class="eco-auth-subtitle">Sign in to EcoTrack</p>
         </div>
 
-        <div class="eco-card">
-          @if (error()) {
+        <!-- Card -->
+        <div class="eco-card" style="padding: 2rem">
+          <!-- Server error banner -->
+          @if (serverError()) {
             <div
-              class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"
+              class="eco-alert eco-alert-error"
+              style="margin-bottom:1.25rem"
             >
-              {{ error() }}
+              <span>⚠️</span>
+              <span>{{ serverError() }}</span>
             </div>
           }
 
-          <form (ngSubmit)="submit()" #f="ngForm" class="space-y-4">
-            <div>
-              <label class="eco-label">Email</label>
+          <!-- Form -->
+          <form (ngSubmit)="submit()" #loginForm="ngForm">
+            <!-- Email -->
+            <div class="eco-form-field" style="margin-bottom:1rem">
+              <label class="eco-label" for="email">Email address</label>
               <input
+                id="email"
                 type="email"
                 name="email"
                 [(ngModel)]="email"
                 required
-                class="eco-input"
+                email
+                #emailRef="ngModel"
+                [class]="
+                  emailRef.touched && emailRef.invalid
+                    ? 'eco-input error'
+                    : 'eco-input'
+                "
                 placeholder="you@example.com"
+                autocomplete="email"
               />
+              @if (emailRef.touched && emailRef.errors?.['required']) {
+                <span class="eco-field-error">Email is required.</span>
+              }
+              @if (emailRef.touched && emailRef.errors?.['email']) {
+                <span class="eco-field-error"
+                  >Enter a valid email address.</span
+                >
+              }
             </div>
-            <div>
-              <label class="eco-label">Password</label>
+
+            <!-- Password -->
+            <div class="eco-form-field" style="margin-bottom:1.5rem">
+              <div
+                style="display:flex;justify-content:space-between;align-items:center"
+              >
+                <label class="eco-label" for="password">Password</label>
+              </div>
               <input
+                id="password"
                 type="password"
                 name="password"
                 [(ngModel)]="password"
                 required
-                class="eco-input"
+                minlength="8"
+                #passwordRef="ngModel"
+                [class]="
+                  passwordRef.touched && passwordRef.invalid
+                    ? 'eco-input error'
+                    : 'eco-input'
+                "
                 placeholder="••••••••"
+                autocomplete="current-password"
               />
+              @if (passwordRef.touched && passwordRef.errors?.['required']) {
+                <span class="eco-field-error">Password is required.</span>
+              }
+              @if (passwordRef.touched && passwordRef.errors?.['minlength']) {
+                <span class="eco-field-error"
+                  >Password must be at least 8 characters.</span
+                >
+              }
             </div>
+
+            <!-- Submit -->
             <button
               type="submit"
+              class="eco-btn eco-btn-primary"
+              style="width:100%"
               [disabled]="loading()"
-              class="eco-btn-primary w-full mt-2"
             >
               @if (loading()) {
+                <span class="eco-spinner"></span>
                 Signing in…
               } @else {
                 Sign in
@@ -68,13 +112,17 @@ import { AuthService } from '../../../core/services/auth.services';
             </button>
           </form>
 
-          <p class="text-center text-sm text-gray-500 mt-4">
-            No account?
+          <!-- Footer link -->
+          <p
+            style="text-align:center;margin-top:1.25rem;font-size:0.875rem;color:#6B7280"
+          >
+            Don't have an account?
             <a
               routerLink="/auth/register"
-              class="text-primary font-medium hover:underline"
-              >Register</a
+              style="color:#1565C0;font-weight:500;margin-left:0.25rem"
             >
+              Create one
+            </a>
           </p>
         </div>
       </div>
@@ -85,7 +133,7 @@ export class LoginComponent {
   email = '';
   password = '';
   loading = signal(false);
-  error = signal('');
+  serverError = signal('');
 
   constructor(
     private auth: AuthService,
@@ -94,13 +142,16 @@ export class LoginComponent {
 
   submit() {
     this.loading.set(true);
-    this.error.set('');
+    this.serverError.set('');
+
     this.auth.login(this.email, this.password).subscribe({
       next: () => this.router.navigate(['/dashboard']),
-      error: (err) => {
-        this.error.set(
-          err.error?.message ?? 'Login failed. Please check your credentials.',
-        );
+      error: (err: HttpErrorResponse) => {
+        const msg =
+          err.error?.message ||
+          err.error?.errors?.email?.[0] ||
+          'Invalid email or password. Please try again.';
+        this.serverError.set(msg);
         this.loading.set(false);
       },
     });

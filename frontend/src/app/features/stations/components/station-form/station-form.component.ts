@@ -21,196 +21,175 @@ import { Station } from '../../../../core/models';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <!-- Backdrop -->
-    <div
-      class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
-      (click)="onBackdrop($event)"
-    >
-      <!-- Modal card -->
-      <div
-        class="relative w-full max-w-lg bg-white rounded-2xl shadow-elevated z-50"
-        (click)="$event.stopPropagation()"
-      >
+    <div class="eco-modal-backdrop" (click)="onBackdrop($event)">
+      <div class="eco-modal" (click)="$event.stopPropagation()">
         <!-- Header -->
-        <div
-          class="flex items-center justify-between px-6 py-4 border-b border-gray-100"
-        >
-          <h2 class="text-base font-semibold text-gray-900">
+        <div class="eco-modal-header">
+          <h2 class="eco-modal-title">
             {{ isEdit() ? 'Edit station' : 'Add new station' }}
           </h2>
-          <button
-            (click)="cancel.emit()"
-            class="w-8 h-8 flex items-center justify-center rounded-lg
-                         text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-          >
+          <button class="eco-modal-close" (click)="cancel.emit()" type="button">
             ✕
           </button>
         </div>
 
-        <!-- Form -->
-        <form
-          [formGroup]="form"
-          (ngSubmit)="submit()"
-          class="px-6 py-5 space-y-4"
-        >
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- Name -->
-            <div class="sm:col-span-2">
-              <label class="eco-label">Station name *</label>
-              <input
-                formControlName="name"
-                class="eco-input"
-                placeholder="e.g. Kampala Central Monitor"
-              />
-              @if (f['name'].touched && f['name'].invalid) {
-                <p class="text-xs text-red-500 mt-1">Name is required.</p>
-              }
-            </div>
-
-            <!-- Country -->
-            <div>
-              <label class="eco-label">Country *</label>
-              <input
-                formControlName="country"
-                class="eco-input"
-                placeholder="Uganda"
-              />
-              @if (f['country'].touched && f['country'].invalid) {
-                <p class="text-xs text-red-500 mt-1">Country is required.</p>
-              }
-            </div>
-
-            <!-- City -->
-            <div>
-              <label class="eco-label">City *</label>
-              <input
-                formControlName="city"
-                class="eco-input"
-                placeholder="Kampala"
-              />
-              @if (f['city'].touched && f['city'].invalid) {
-                <p class="text-xs text-red-500 mt-1">City is required.</p>
-              }
-            </div>
-
-            <!-- Latitude -->
-            <div>
-              <label class="eco-label">Latitude *</label>
-              <input
-                formControlName="latitude"
-                type="number"
-                step="any"
-                class="eco-input"
-                placeholder="0.3476"
-              />
-              @if (f['latitude'].touched && f['latitude'].invalid) {
-                <p class="text-xs text-red-500 mt-1">
-                  Valid latitude required (−90 to 90).
-                </p>
-              }
-            </div>
-
-            <!-- Longitude -->
-            <div>
-              <label class="eco-label">Longitude *</label>
-              <input
-                formControlName="longitude"
-                type="number"
-                step="any"
-                class="eco-input"
-                placeholder="32.5825"
-              />
-              @if (f['longitude'].touched && f['longitude'].invalid) {
-                <p class="text-xs text-red-500 mt-1">
-                  Valid longitude required (−180 to 180).
-                </p>
-              }
-            </div>
-
-            <!-- Type -->
-            <div>
-              <label class="eco-label">Station type *</label>
-              <select formControlName="type" class="eco-input">
-                <option value="">Select type</option>
-                <option value="air_quality">Air quality</option>
-                <option value="weather">Weather</option>
-                <option value="emissions">Emissions</option>
-              </select>
-              @if (f['type'].touched && f['type'].invalid) {
-                <p class="text-xs text-red-500 mt-1">Type is required.</p>
-              }
-            </div>
-
-            <!-- Active toggle -->
-            <div class="flex items-center gap-3 pt-5">
-              <button
-                type="button"
-                (click)="toggleActive()"
-                [class]="form.value.is_active ? 'bg-secondary' : 'bg-gray-300'"
-                class="relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-1"
-              >
-                <span
-                  [class]="
-                    form.value.is_active ? 'translate-x-6' : 'translate-x-1'
-                  "
-                  class="block w-4 h-4 bg-white rounded-full shadow transition-transform duration-200"
-                >
-                </span>
-              </button>
-              <span class="text-sm text-gray-700">
-                {{ form.value.is_active ? 'Active' : 'Inactive' }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Error banner -->
+        <!-- Body -->
+        <div class="eco-modal-body">
+          <!-- Server error -->
           @if (serverError()) {
             <div
-              class="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"
+              class="eco-alert eco-alert-error"
+              style="margin-bottom:1.25rem"
             >
-              {{ serverError() }}
+              <span>⚠️</span>
+              <span>{{ serverError() }}</span>
             </div>
           }
 
-          <!-- Actions -->
-          <div class="flex items-center justify-end gap-3 pt-2">
-            <button
-              type="button"
-              (click)="cancel.emit()"
-              class="eco-btn-outlined"
-            >
-              Cancel
-            </button>
-            <button type="submit" [disabled]="saving()" class="eco-btn-primary">
-              @if (saving()) {
-                <span class="flex items-center gap-2">
-                  <svg
-                    class="w-4 h-4 animate-spin"
-                    viewBox="0 0 24 24"
-                    fill="none"
+          <form [formGroup]="form" (ngSubmit)="submit()" id="station-form">
+            <div class="eco-form-grid">
+              <!-- Name -->
+              <div class="eco-form-field span-2">
+                <label class="eco-label">Station name *</label>
+                <input
+                  formControlName="name"
+                  class="eco-input"
+                  [class.error]="touched('name') && invalid('name')"
+                  placeholder="e.g. Kampala Central Monitor"
+                />
+                @if (touched('name') && invalid('name')) {
+                  <span class="eco-field-error"
+                    >⚠ Station name is required.</span
                   >
-                    <circle
-                      class="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      stroke-width="4"
-                    />
-                    <path
-                      class="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v8H4z"
-                    />
-                  </svg>
-                  Saving…
-                </span>
-              } @else {
-                {{ isEdit() ? 'Save changes' : 'Create station' }}
-              }
-            </button>
-          </div>
-        </form>
+                }
+              </div>
+
+              <!-- Country -->
+              <div class="eco-form-field">
+                <label class="eco-label">Country *</label>
+                <input
+                  formControlName="country"
+                  class="eco-input"
+                  [class.error]="touched('country') && invalid('country')"
+                  placeholder="Uganda"
+                />
+                @if (touched('country') && invalid('country')) {
+                  <span class="eco-field-error">⚠ Country is required.</span>
+                }
+              </div>
+
+              <!-- City -->
+              <div class="eco-form-field">
+                <label class="eco-label">City *</label>
+                <input
+                  formControlName="city"
+                  class="eco-input"
+                  [class.error]="touched('city') && invalid('city')"
+                  placeholder="Kampala"
+                />
+                @if (touched('city') && invalid('city')) {
+                  <span class="eco-field-error">⚠ City is required.</span>
+                }
+              </div>
+
+              <!-- Latitude -->
+              <div class="eco-form-field">
+                <label class="eco-label">Latitude *</label>
+                <input
+                  formControlName="latitude"
+                  type="number"
+                  step="any"
+                  class="eco-input"
+                  [class.error]="touched('latitude') && invalid('latitude')"
+                  placeholder="0.3476"
+                />
+                @if (touched('latitude') && invalid('latitude')) {
+                  <span class="eco-field-error"
+                    >⚠ Valid latitude (−90 to 90) required.</span
+                  >
+                }
+              </div>
+
+              <!-- Longitude -->
+              <div class="eco-form-field">
+                <label class="eco-label">Longitude *</label>
+                <input
+                  formControlName="longitude"
+                  type="number"
+                  step="any"
+                  class="eco-input"
+                  [class.error]="touched('longitude') && invalid('longitude')"
+                  placeholder="32.5825"
+                />
+                @if (touched('longitude') && invalid('longitude')) {
+                  <span class="eco-field-error"
+                    >⚠ Valid longitude (−180 to 180) required.</span
+                  >
+                }
+              </div>
+
+              <!-- Type -->
+              <div class="eco-form-field">
+                <label class="eco-label">Station type *</label>
+                <select
+                  formControlName="type"
+                  class="eco-input"
+                  [class.error]="touched('type') && invalid('type')"
+                >
+                  <option value="">Select a type…</option>
+                  <option value="air_quality">Air quality</option>
+                  <option value="weather">Weather</option>
+                  <option value="emissions">Emissions</option>
+                </select>
+                @if (touched('type') && invalid('type')) {
+                  <span class="eco-field-error"
+                    >⚠ Please select a station type.</span
+                  >
+                }
+              </div>
+
+              <!-- Active toggle -->
+              <div class="eco-form-field" style="justify-content:flex-end">
+                <label class="eco-label">Status</label>
+                <div class="eco-toggle-wrap" (click)="toggleActive()">
+                  <div
+                    class="eco-toggle-track"
+                    [class.on]="form.value.is_active"
+                  >
+                    <div class="eco-toggle-thumb"></div>
+                  </div>
+                  <span class="eco-toggle-label">
+                    {{ form.value.is_active ? 'Active' : 'Inactive' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="eco-modal-footer">
+          <button
+            type="button"
+            (click)="cancel.emit()"
+            class="eco-btn eco-btn-ghost"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="station-form"
+            class="eco-btn eco-btn-primary"
+            [disabled]="saving()"
+          >
+            @if (saving()) {
+              <span class="eco-spinner"></span>
+              Saving…
+            } @else {
+              {{ isEdit() ? 'Save changes' : 'Create station' }}
+            }
+          </button>
+        </div>
       </div>
     </div>
   `,
@@ -223,7 +202,6 @@ export class StationFormComponent implements OnInit {
   saving = signal(false);
   serverError = signal('');
   form!: FormGroup;
-
   isEdit = computed(() => !!this.station);
 
   constructor(private fb: FormBuilder) {}
@@ -237,11 +215,11 @@ export class StationFormComponent implements OnInit {
       country: [this.station?.country ?? '', [Validators.required]],
       city: [this.station?.city ?? '', [Validators.required]],
       latitude: [
-        this.station?.latitude ?? '',
+        this.station?.latitude ?? null,
         [Validators.required, Validators.min(-90), Validators.max(90)],
       ],
       longitude: [
-        this.station?.longitude ?? '',
+        this.station?.longitude ?? null,
         [Validators.required, Validators.min(-180), Validators.max(180)],
       ],
       type: [this.station?.type ?? '', [Validators.required]],
@@ -249,8 +227,11 @@ export class StationFormComponent implements OnInit {
     });
   }
 
-  get f() {
-    return this.form.controls;
+  touched(field: string) {
+    return this.form.get(field)?.touched;
+  }
+  invalid(field: string) {
+    return this.form.get(field)?.invalid;
   }
 
   toggleActive() {
@@ -271,8 +252,8 @@ export class StationFormComponent implements OnInit {
     this.saved.emit(this.form.value);
   }
 
-  setSaving(val: boolean) {
-    this.saving.set(val);
+  setSaving(v: boolean) {
+    this.saving.set(v);
   }
   setError(msg: string) {
     this.serverError.set(msg);
