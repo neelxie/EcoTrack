@@ -24,20 +24,20 @@ export const routes: Routes = [
         (m) => m.StationsModule,
       ),
   },
-  {
-    path: 'readings',
-    canActivate: [authGuard],
-    loadChildren: () =>
-      import('./features/readings/readings.module').then(
-        (m) => m.ReadingsModule,
-      ),
-  },
-  {
-    path: 'alerts',
-    canActivate: [authGuard],
-    loadChildren: () =>
-      import('./features/alerts/alerts.module').then((m) => m.AlertsModule),
-  },
+  // {
+  //   path: 'readings',
+  //   canActivate: [authGuard],
+  //   loadChildren: () =>
+  //     import('./features/readings/readings.module').then(
+  //       (m) => m.ReadingsModule,
+  //     ),
+  // },
+  // {
+  //   path: 'alerts',
+  //   canActivate: [authGuard],
+  //   loadChildren: () =>
+  //     import('./features/alerts/alerts.module').then((m) => m.AlertsModule),
+  // },
   {
     path: 'reports',
     canActivate: [authGuard],
