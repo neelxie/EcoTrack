@@ -36,8 +36,7 @@
             "scripts": [],
             "stylePreprocessorOptions": {
               "includePaths": ["src"]
-            },
-            "postcssConfiguration": "postcss.config.js"
+            }
           },
           "configurations": {
             "production": {

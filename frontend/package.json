@@ -25,7 +25,9 @@
     "jspdf-autotable": "^5.0.7",
     "leaflet": "^1.9.4",
     "ng2-charts": "^10.0.0",
+    "postcss": "^8.5.8",
     "rxjs": "~7.8.0",
+    "tailwindcss": "^4.2.2",
     "tslib": "^2.3.0",
     "xlsx": "^0.18.5",
     "zone.js": "~0.14.10"
@@ -39,15 +41,12 @@
     "@tailwindcss/vite": "^4.2.2",
     "@types/jasmine": "~5.1.0",
     "@types/leaflet": "^1.9.21",
-    "autoprefixer": "^10.4.27",
     "jasmine-core": "~5.2.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "postcss": "^8.5.8",
-    "tailwindcss": "^4.2.2",
     "typescript": "~5.5.2"
   }
 }
