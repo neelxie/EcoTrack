@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.services';
 import { AlertBadgeComponent } from '../../../features/alerts/components/alert-badge/alert-badge.component';
@@ -7,113 +7,90 @@ import { AlertBadgeComponent } from '../../../features/alerts/components/alert-b
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [
-    RouterOutlet,
-    RouterLink,
-    RouterLinkActive,
-    CommonModule,
-    AlertBadgeComponent,
-  ],
+  imports: [RouterLink, RouterLinkActive, CommonModule, AlertBadgeComponent],
+  styles: [`
+    :host { display: flex; height: 100vh; overflow: hidden; }
+    aside { display: flex; flex-direction: column; width: 256px; flex-shrink: 0;
+            background: #1565C0; overflow-y: auto; }
+    main  { flex: 1; overflow-y: auto; background: #F5F7FA; }
+    .nav-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px; border-radius: 8px;
+      font-size: 0.875rem; font-weight: 500;
+      color: rgba(255,255,255,0.75);
+      transition: background 0.15s, color 0.15s;
+      text-decoration: none;
+    }
+    .nav-link:hover   { background: rgba(255,255,255,0.1); color: #fff; }
+    .nav-link.active  { background: rgba(255,255,255,0.18); color: #fff; }
+    .nav-icon { font-size: 1.1rem; width: 20px; text-align: center; }
+  `],
   template: `
-    <div class="flex h-screen bg-background">
-      <!-- Sidebar -->
-      <aside
-        class="w-64 bg-primary flex flex-col shadow-elevated flex-shrink-0"
-      >
-        <!-- Logo -->
-        <div class="px-6 py-5 border-b border-primary-light">
-          <div class="flex items-center gap-3">
-            <div
-              class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center"
-            >
-              <span class="text-white font-bold text-sm">E</span>
+    <aside>
+      <!-- Logo -->
+      <div style="padding: 20px 24px 16px; border-bottom: 1px solid rgba(255,255,255,0.12);">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.2);
+                      display:flex;align-items:center;justify-content:center;">
+            <span style="color:#fff;font-weight:700;font-size:14px;">E</span>
+          </div>
+          <span style="color:#fff;font-weight:600;font-size:1.1rem;">EcoTrack</span>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav style="flex:1; padding: 12px;">
+        @for (item of navItems; track item.path) {
+          <a [routerLink]="item.path"
+             routerLinkActive="active"
+             class="nav-link">
+            <span class="nav-icon">{{ item.icon }}</span>
+            {{ item.label }}
+          </a>
+        }
+        <!-- Alerts with live badge -->
+        <app-alert-badge />
+      </nav>
+
+      <!-- User footer -->
+      <div style="padding:12px;border-top:1px solid rgba(255,255,255,0.12);">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;margin-bottom:4px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.2);
+                      display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <span style="color:#fff;font-size:13px;font-weight:600;">
+              {{ auth.user()?.name?.charAt(0)?.toUpperCase() ?? '?' }}
+            </span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="color:#fff;font-size:13px;font-weight:500;
+                        overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              {{ auth.user()?.name }}
             </div>
-            <span class="text-white font-semibold text-lg">EcoTrack</span>
+            <div style="color:rgba(255,255,255,0.55);font-size:11px;
+                        overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              {{ auth.user()?.email }}
+            </div>
           </div>
         </div>
+        <button (click)="logout()" class="nav-link" style="width:100%;border:none;cursor:pointer;background:none;">
+          <span class="nav-icon">🚪</span> Sign out
+        </button>
+      </div>
+    </aside>
 
-        <!-- Nav -->
-        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          @for (item of staticNavItems; track item.path) {
-            <a
-              [routerLink]="item.path"
-              routerLinkActive="bg-white/20 text-white"
-              class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100
-                      hover:bg-white/10 hover:text-white transition-all duration-150
-                      text-sm font-medium"
-            >
-              <span class="text-lg">{{ item.icon }}</span>
-              {{ item.label }}
-            </a>
-          }
-
-          <!-- Alerts nav item (has live badge) -->
-          <app-alert-badge />
-
-          @for (item of bottomNavItems; track item.path) {
-            <a
-              [routerLink]="item.path"
-              routerLinkActive="bg-white/20 text-white"
-              class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100
-                      hover:bg-white/10 hover:text-white transition-all duration-150
-                      text-sm font-medium"
-            >
-              <span class="text-lg">{{ item.icon }}</span>
-              {{ item.label }}
-            </a>
-          }
-        </nav>
-
-        <!-- User footer -->
-        <div class="px-3 py-4 border-t border-primary-light">
-          <div class="flex items-center gap-3 px-3 py-2 mb-2">
-            <div
-              class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0"
-            >
-              <span class="text-white text-sm font-medium">
-                {{ auth.user()?.name?.charAt(0)?.toUpperCase() }}
-              </span>
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-white text-sm font-medium truncate">
-                {{ auth.user()?.name }}
-              </p>
-              <p class="text-blue-200 text-xs truncate">
-                {{ auth.user()?.email }}
-              </p>
-            </div>
-          </div>
-          <button
-            (click)="logout()"
-            class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-blue-100
-                         hover:bg-white/10 hover:text-white transition-all duration-150 text-sm"
-          >
-            <span>🚪</span> Sign out
-          </button>
-        </div>
-      </aside>
-
-      <!-- Page content -->
-      <main class="flex-1 overflow-auto">
-        <ng-content />
-      </main>
-    </div>
+    <main>
+      <ng-content />
+    </main>
   `,
 })
 export class ShellComponent {
-  staticNavItems = [
+  navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: '📊' },
-    { path: '/stations', label: 'Stations', icon: '📍' },
-    { path: '/readings', label: 'Readings', icon: '📈' },
+    { path: '/stations',  label: 'Stations',  icon: '📍' },
+    { path: '/readings',  label: 'Readings',  icon: '📈' },
+    { path: '/reports',   label: 'Reports',   icon: '📄' },
   ];
 
-  // Alerts is handled separately by <app-alert-badge>
-
-  bottomNavItems = [{ path: '/reports', label: 'Reports', icon: '📄' }];
-
   constructor(public auth: AuthService) {}
-
-  logout() {
-    this.auth.logout().subscribe();
-  }
+  logout() { this.auth.logout().subscribe(); }
 }
