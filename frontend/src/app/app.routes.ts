@@ -32,12 +32,12 @@ export const routes: Routes = [
         (m) => m.ReadingsModule,
       ),
   },
-  // {
-  //   path: 'alerts',
-  //   canActivate: [authGuard],
-  //   loadChildren: () =>
-  //     import('./features/alerts/alerts.module').then((m) => m.AlertsModule),
-  // },
+  {
+    path: 'alerts',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/alerts/alerts.module').then((m) => m.AlertsModule),
+  },
   {
     path: 'reports',
     canActivate: [authGuard],
