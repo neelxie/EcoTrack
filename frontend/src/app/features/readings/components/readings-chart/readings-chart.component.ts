@@ -121,7 +121,7 @@ export class ReadingsChartComponent implements AfterViewInit, OnChanges, OnDestr
             padding:         10,
             cornerRadius:    8,
             callbacks: {
-              label: ctx => ` ${ctx.parsed.y.toFixed(2)} ${this.unit}`,
+              label: ctx => ` ${(ctx.parsed?.y ?? 0).toFixed(2)} ${this.unit}`,
             },
           },
         },
