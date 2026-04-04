@@ -2,23 +2,18 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use App\Modules\Alert\Models\Alert;
+use App\Policies\AlertPolicy;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider;
 
-class AppServiceProvider extends ServiceProvider
+class AppServiceProvider extends AuthServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
-        //
-    }
+    protected $policies = [
+        Alert::class => AlertPolicy::class,
+    ];
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        //
+        $this->registerPolicies();
     }
 }
