@@ -62,7 +62,7 @@ export class ShellComponent {
     { path: '/dashboard', label: 'Dashboard', icon: '📊' },
     { path: '/stations', label: 'Stations', icon: '📍' },
     { path: '/readings', label: 'Readings', icon: '📈' },
-    { path: '/alerts', label: 'Alerts', icon: '🔔' },
+    // { path: '/alerts', label: 'Alerts', icon: '🔔' },
     { path: '/reports', label: 'Reports', icon: '📄' },
   ];
 
