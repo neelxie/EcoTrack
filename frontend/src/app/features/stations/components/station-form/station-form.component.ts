@@ -40,7 +40,7 @@ import { Station } from '../../../../core/models';
                   class="eco-input"
                   placeholder="e.g. Kampala Central Monitor"
                 />
-                @if (f['name'].touched && f['name'].invalid) {
+                @if (form.controls['name'].touched && form.controls['name'].invalid) {
                   <span class="eco-field-error">Name is required.</span>
                 }
               </div>
@@ -52,7 +52,7 @@ import { Station } from '../../../../core/models';
                   class="eco-input"
                   placeholder="Uganda"
                 />
-                @if (f['country'].touched && f['country'].invalid) {
+                @if (form.controls['country'].touched && form.controls['country'].invalid) {
                   <span class="eco-field-error">Required.</span>
                 }
               </div>
@@ -64,7 +64,7 @@ import { Station } from '../../../../core/models';
                   class="eco-input"
                   placeholder="Kampala"
                 />
-                @if (f['city'].touched && f['city'].invalid) {
+                @if (form.controls['city'].touched && form.controls['city'].invalid) {
                   <span class="eco-field-error">Required.</span>
                 }
               </div>
@@ -78,7 +78,7 @@ import { Station } from '../../../../core/models';
                   class="eco-input"
                   placeholder="0.3476"
                 />
-                @if (f['latitude'].touched && f['latitude'].invalid) {
+                @if (form.controls['latitude'].touched && form.controls['latitude'].invalid) {
                   <span class="eco-field-error"
                     >Valid latitude (−90 to 90).</span
                   >
@@ -94,7 +94,7 @@ import { Station } from '../../../../core/models';
                   class="eco-input"
                   placeholder="32.5825"
                 />
-                @if (f['longitude'].touched && f['longitude'].invalid) {
+                @if (form.controls['longitude'].touched && form.controls['longitude'].invalid) {
                   <span class="eco-field-error"
                     >Valid longitude (−180 to 180).</span
                   >
@@ -109,7 +109,7 @@ import { Station } from '../../../../core/models';
                   <option value="weather">Weather</option>
                   <option value="emissions">Emissions</option>
                 </select>
-                @if (f['type'].touched && f['type'].invalid) {
+                @if (form.controls['type'].touched && form.controls['type'].invalid) {
                   <span class="eco-field-error">Required.</span>
                 }
               </div>
