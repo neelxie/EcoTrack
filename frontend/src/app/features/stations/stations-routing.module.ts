@@ -5,9 +5,7 @@ const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./components/stations.component').then(
-        (c) => c.StationsComponent,
-      ),
+      import('./stations.component').then((c) => c.StationsComponent),
   },
 ];
 

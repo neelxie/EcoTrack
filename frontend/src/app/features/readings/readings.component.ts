@@ -17,7 +17,6 @@ import {
 import { ReadingsChartComponent } from './components/readings-chart/readings-chart.component';
 import { ReadingsTableComponent } from './components/readings-table/readings-table.component';
 import { ReadingsStatsComponent } from './components/readings-stats/readings-stats.component';
-
 import { ReadingService } from '../../core/services/reading.service';
 import { StationService } from '../../core/services/station.service';
 import { Station, Reading, ReadingSummary } from '../../core/models';
@@ -35,11 +34,11 @@ import { Station, Reading, ReadingSummary } from '../../core/models';
   ],
   template: `
     <app-shell>
-      <div class="p-6 space-y-6">
+      <div class="eco-page">
         <!-- Header -->
-        <div>
-          <h1 class="text-2xl font-semibold text-gray-900">Readings</h1>
-          <p class="text-sm text-gray-500 mt-1">
+        <div class="eco-page-header">
+          <h1 class="eco-page-title">Readings</h1>
+          <p class="eco-page-subtitle">
             Time-series environmental data across stations
           </p>
         </div>
@@ -52,45 +51,44 @@ import { Station, Reading, ReadingSummary } from '../../core/models';
 
         <!-- No station selected -->
         @if (!activeFilter()?.stationId) {
-          <div
-            class="eco-card flex flex-col items-center justify-center py-16 text-center"
-          >
-            <span class="text-5xl mb-4">📍</span>
-            <h3 class="text-base font-medium text-gray-700">
-              Select a station
-            </h3>
-            <p class="text-sm text-gray-400 mt-1 max-w-sm">
+          <div class="eco-card eco-empty">
+            <span class="eco-empty-icon">📍</span>
+            <p class="eco-empty-title">Select a station</p>
+            <p style="font-size:0.875rem;color:#9ca3af;margin:4px 0 0;">
               Choose a monitoring station from the filter above to load its
-              readings and view charts.
+              readings.
             </p>
           </div>
         }
 
         <!-- Loading -->
         @if (loading() && activeFilter()?.stationId) {
-          <div class="space-y-4">
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div style="display:flex;flex-direction:column;gap:1rem;">
+            <div
+              style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;"
+            >
               @for (i of [1, 2, 3, 4]; track i) {
-                <div class="eco-card h-24 animate-pulse bg-gray-50"></div>
+                <div
+                  class="eco-skeleton"
+                  style="height:90px;border-radius:12px;"
+                ></div>
               }
             </div>
-            <div class="eco-card h-72 animate-pulse bg-gray-50"></div>
+            <div
+              class="eco-skeleton"
+              style="height:320px;border-radius:12px;"
+            ></div>
           </div>
         }
 
         <!-- Data loaded -->
         @if (!loading() && activeFilter()?.stationId) {
-          <!-- Stats bar -->
           <app-readings-stats [summary]="statsSummary()" />
-
-          <!-- Chart -->
           <app-readings-chart
             [readings]="readings()"
             [metric]="activeFilter()?.metric || 'value'"
             [unit]="unit()"
           />
-
-          <!-- Table -->
           <app-readings-table [readings]="readings()" />
         }
       </div>
@@ -103,25 +101,18 @@ export class ReadingsComponent implements OnInit, OnDestroy {
   loading = signal(false);
   activeFilter = signal<ReadingFilter | null>(null);
 
-  // Derived stats from readings
   statsSummary = computed(() => {
     const list = this.readings();
     if (!list.length) return null;
-
     const values = list.map((r) => r.value);
-    const avg = values.reduce((a, b) => a + b, 0) / values.length;
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const unit = list[0]?.unit ?? '';
-
     return {
       station_id: list[0]?.station_id,
       metric: this.activeFilter()?.metric ?? '',
-      unit,
+      unit: list[0]?.unit ?? '',
       date: this.activeFilter()?.from ?? '',
-      avg,
-      min,
-      max,
+      avg: values.reduce((a, b) => a + b, 0) / values.length,
+      min: Math.min(...values),
+      max: Math.max(...values),
       count: list.length,
     };
   });
@@ -137,13 +128,11 @@ export class ReadingsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Load all stations for the filter dropdown
     this.stationSvc
       .list({ active: true })
       .pipe(takeUntil(this.destroy$))
       .subscribe((res) => this.stations.set(res.data));
 
-    // React to filter changes
     this.filter$
       .pipe(
         tap((f) => {
@@ -152,7 +141,6 @@ export class ReadingsComponent implements OnInit, OnDestroy {
         }),
         switchMap((f) => {
           if (!f?.stationId) return EMPTY;
-
           return this.readingSvc.list(f.stationId, {
             metric: f.metric || undefined,
             from: f.from || undefined,

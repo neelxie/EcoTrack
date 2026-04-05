@@ -1,21 +1,41 @@
 import {
-  Component, Input, OnChanges,
-  SimpleChanges, OnDestroy,
-  ElementRef, ViewChild, AfterViewInit, signal
+  Component,
+  Input,
+  OnChanges,
+  SimpleChanges,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Reading } from '../../../../core/models';
 import {
-  Chart, ChartConfiguration, ChartData,
-  LineController, LineElement, PointElement,
-  LinearScale, TimeScale, Filler, Tooltip,
-  Legend, CategoryScale
+  Chart,
+  ChartConfiguration,
+  ChartData,
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  TimeScale,
+  Filler,
+  Tooltip,
+  Legend,
+  CategoryScale,
 } from 'chart.js';
 
 Chart.register(
-  LineController, LineElement, PointElement,
-  LinearScale, TimeScale, Filler, Tooltip,
-  Legend, CategoryScale
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  TimeScale,
+  Filler,
+  Tooltip,
+  Legend,
+  CategoryScale,
 );
 
 @Component({
@@ -24,60 +44,81 @@ Chart.register(
   imports: [CommonModule],
   template: `
     <div class="eco-card">
-      <div class="flex items-center justify-between mb-4">
+      <div
+        style="display:flex;align-items:center;justify-content:space-between;
+                margin-bottom:1rem;flex-wrap:wrap;gap:8px;"
+      >
         <div>
-          <h2 class="text-sm font-semibold text-gray-700">
+          <h2 class="eco-section-title">
             {{ metric || 'Readings' }} over time
           </h2>
           @if (unit) {
-            <p class="text-xs text-gray-400 mt-0.5">Unit: {{ unit }}</p>
+            <p class="eco-meta" style="margin-top:2px;">Unit: {{ unit }}</p>
           }
         </div>
-
-        <!-- Chart type toggle -->
-        <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+        <div
+          style="display:flex;background:#f3f4f6;border-radius:8px;padding:3px;gap:2px;"
+        >
           @for (t of chartTypes; track t.value) {
             <button
               (click)="setChartType(t.value)"
-              [class]="activeType() === t.value
-                ? 'bg-white shadow-sm text-primary font-medium'
-                : 'text-gray-500 hover:text-gray-700'"
-              class="px-3 py-1 rounded-md text-xs transition-all duration-150">
+              [style.background]="
+                activeType() === t.value ? '#fff' : 'transparent'
+              "
+              [style.color]="activeType() === t.value ? '#1565c0' : '#6b7280'"
+              [style.font-weight]="activeType() === t.value ? '600' : '400'"
+              [style.box-shadow]="
+                activeType() === t.value ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+              "
+              style="padding:4px 14px;border-radius:6px;border:none;
+                   font-size:0.75rem;cursor:pointer;transition:all 0.15s;
+                   font-family:inherit;"
+            >
               {{ t.label }}
             </button>
           }
         </div>
       </div>
 
-      <!-- Empty state -->
       @if (!hasData()) {
-        <div class="flex flex-col items-center justify-center h-64 text-gray-400">
-          <span class="text-4xl mb-3">📈</span>
-          <p class="text-sm">No readings for this selection.</p>
-          <p class="text-xs mt-1">Try a different station, metric, or date range.</p>
+        <div
+          style="height:280px;display:flex;flex-direction:column;
+                  align-items:center;justify-content:center;color:#d1d5db;"
+        >
+          <span style="font-size:3rem;margin-bottom:12px;">📈</span>
+          <p style="font-size:0.875rem;margin:0;color:#9ca3af;">
+            No readings for this selection.
+          </p>
+          <p style="font-size:0.75rem;margin:4px 0 0;color:#d1d5db;">
+            Try a different station, metric, or date range.
+          </p>
         </div>
       }
 
-      <!-- Chart canvas -->
-      <div [class.hidden]="!hasData()" style="position:relative; height: 280px;">
+      <div
+        [style.display]="hasData() ? 'block' : 'none'"
+        style="position:relative;height:280px;"
+      >
         <canvas #chartCanvas></canvas>
       </div>
     </div>
   `,
 })
-export class ReadingsChartComponent implements AfterViewInit, OnChanges, OnDestroy {
+export class ReadingsChartComponent
+  implements AfterViewInit, OnChanges, OnDestroy
+{
   @Input() readings: Reading[] = [];
-  @Input() metric   = '';
-  @Input() unit     = '';
+  @Input() metric = '';
+  @Input() unit = '';
 
   @ViewChild('chartCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
 
   activeType = signal<'line' | 'bar'>('line');
-  hasData    = signal(false);
+  hasData = signal(false);
 
   chartTypes = [
     { label: 'Line', value: 'line' as const },
-    { label: 'Bar',  value: 'bar'  as const },
+    { label: 'Bar', value: 'bar' as const },
   ];
 
   private chart: Chart | null = null;
@@ -96,7 +137,10 @@ export class ReadingsChartComponent implements AfterViewInit, OnChanges, OnDestr
     this.chart?.destroy();
     this.chart = null;
     // Allow one tick for the canvas to be available again
-    setTimeout(() => { this.buildChart(); this.updateChart(); }, 0);
+    setTimeout(() => {
+      this.buildChart();
+      this.updateChart();
+    }, 0);
   }
 
   private buildChart() {
@@ -109,37 +153,38 @@ export class ReadingsChartComponent implements AfterViewInit, OnChanges, OnDestr
       type: this.activeType(),
       data: { labels: [], datasets: [] },
       options: {
-        responsive:          true,
+        responsive: true,
         maintainAspectRatio: false,
         interaction: { mode: 'index', intersect: false },
         plugins: {
           legend: { display: false },
           tooltip: {
             backgroundColor: '#1e293b',
-            titleFont:       { size: 12 },
-            bodyFont:        { size: 12 },
-            padding:         10,
-            cornerRadius:    8,
+            titleFont: { size: 12 },
+            bodyFont: { size: 12 },
+            padding: 10,
+            cornerRadius: 8,
             callbacks: {
-              label: ctx => ` ${(ctx.parsed?.y ?? 0).toFixed(2)} ${this.unit}`,
+              label: (ctx) =>
+                ` ${(ctx.parsed?.y ?? 0).toFixed(2)} ${this.unit}`,
             },
           },
         },
         scales: {
           x: {
-            grid:   { color: 'rgba(0,0,0,0.04)' },
-            ticks:  { font: { size: 11 }, color: '#94a3b8', maxTicksLimit: 10 },
+            grid: { color: 'rgba(0,0,0,0.04)' },
+            ticks: { font: { size: 11 }, color: '#94a3b8', maxTicksLimit: 10 },
           },
           y: {
-            grid:   { color: 'rgba(0,0,0,0.04)' },
-            ticks:  { font: { size: 11 }, color: '#94a3b8' },
+            grid: { color: 'rgba(0,0,0,0.04)' },
+            ticks: { font: { size: 11 }, color: '#94a3b8' },
             beginAtZero: false,
           },
         },
         elements: {
           point: {
-            radius:      isLine ? 3   : 0,
-            hoverRadius: isLine ? 6   : 0,
+            radius: isLine ? 3 : 0,
+            hoverRadius: isLine ? 6 : 0,
             borderWidth: 2,
           },
           line: { tension: 0.4 },
@@ -154,29 +199,32 @@ export class ReadingsChartComponent implements AfterViewInit, OnChanges, OnDestr
     if (!this.chart) return;
 
     const sorted = [...this.readings].sort(
-      (a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime()
+      (a, b) =>
+        new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime(),
     );
 
     this.hasData.set(sorted.length > 0);
     if (!sorted.length) return;
 
-    const labels  = sorted.map(r => this.formatDate(r.recorded_at));
-    const values  = sorted.map(r => r.value);
-    const isLine  = this.activeType() === 'line';
+    const labels = sorted.map((r) => this.formatDate(r.recorded_at));
+    const values = sorted.map((r) => r.value);
+    const isLine = this.activeType() === 'line';
     const primary = '#1565C0';
 
     this.chart.data = {
       labels,
-      datasets: [{
-        data:            values,
-        borderColor:     primary,
-        backgroundColor: isLine
-          ? 'rgba(21,101,192,0.08)'
-          : 'rgba(21,101,192,0.75)',
-        borderWidth: isLine ? 2 : 0,
-        fill:        isLine,
-        pointBackgroundColor: primary,
-      }],
+      datasets: [
+        {
+          data: values,
+          borderColor: primary,
+          backgroundColor: isLine
+            ? 'rgba(21,101,192,0.08)'
+            : 'rgba(21,101,192,0.75)',
+          borderWidth: isLine ? 2 : 0,
+          fill: isLine,
+          pointBackgroundColor: primary,
+        },
+      ],
     } as ChartData;
 
     this.chart.update('active');
@@ -184,8 +232,15 @@ export class ReadingsChartComponent implements AfterViewInit, OnChanges, OnDestr
 
   private formatDate(iso: string): string {
     const d = new Date(iso);
-    return d.toLocaleDateString('en-GB', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleDateString('en-GB', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 
-  ngOnDestroy() { this.chart?.destroy(); }
+  ngOnDestroy() {
+    this.chart?.destroy();
+  }
 }

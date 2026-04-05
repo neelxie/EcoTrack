@@ -1,11 +1,11 @@
 import { Component, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ShellComponent } from '../../../shared/components/shell/shell.component';
-import { StationListComponent } from './station-list/station-list.component';
-import { StationMapComponent } from './station-map/station-map.component';
-import { StationFormComponent } from './station-form/station-form.component';
-import { StationService } from '../../../core/services/station.service';
-import { Station } from '../../../core/models';
+import { ShellComponent } from '../../shared/components/shell/shell.component';
+import { StationListComponent } from './components/station-list/station-list.component';
+import { StationMapComponent } from './components/station-map/station-map.component';
+import { StationFormComponent } from './components/station-form/station-form.component';
+import { StationService } from '../../core/services/station.service';
+import { Station } from '../../core/models';
 
 @Component({
   selector: 'app-stations',
@@ -19,24 +19,21 @@ import { Station } from '../../../core/models';
   ],
   template: `
     <app-shell>
-      <div class="p-6 space-y-6">
-        <!-- Page header -->
-        <div class="flex items-center justify-between">
+      <div class="eco-page">
+        <div class="eco-topbar">
           <div>
-            <h1 class="text-2xl font-semibold text-gray-900">Stations</h1>
-            <p class="text-sm text-gray-500 mt-1">
+            <h1 class="eco-page-title">Stations</h1>
+            <p class="eco-page-subtitle">
               Manage monitoring stations and view their locations
             </p>
           </div>
         </div>
 
-        <!-- Map -->
         <app-station-map
           [stations]="allStations()"
           (stationClicked)="onMapClick($event)"
         />
 
-        <!-- List -->
         <app-station-list
           #listRef
           (addClicked)="openForm(null)"
@@ -47,7 +44,6 @@ import { Station } from '../../../core/models';
       </div>
     </app-shell>
 
-    <!-- Create / Edit modal -->
     @if (showForm()) {
       <app-station-form
         [station]="editingStation()"

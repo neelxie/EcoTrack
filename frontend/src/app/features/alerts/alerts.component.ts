@@ -3,12 +3,11 @@ import { CommonModule } from '@angular/common';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 
 import { ShellComponent } from '../../shared/components/shell/shell.component';
-import { AlertListComponent } from '../alerts/components/alert-list/alert-list.component';
+import { AlertListComponent } from './components/alert-list/alert-list.component';
 import {
   AlertFormComponent,
   AlertPayload,
-} from '../alerts/components/alert-form/alert-form.component';
-
+} from './components/alert-form/alert-form.component';
 import { AlertService } from '../../core/services/alert.services';
 import { StationService } from '../../core/services/station.service';
 import { Alert, Station } from '../../core/models';
@@ -24,51 +23,64 @@ import { Alert, Station } from '../../core/models';
   ],
   template: `
     <app-shell>
-      <div class="p-6 space-y-6">
+      <div class="eco-page">
         <!-- Header -->
-        <div class="flex items-center justify-between">
+        <div class="eco-topbar">
           <div>
-            <h1 class="text-2xl font-semibold text-gray-900">Alerts</h1>
-            <p class="text-sm text-gray-500 mt-1">
+            <h1 class="eco-page-title">Alerts</h1>
+            <p class="eco-page-subtitle">
               Define threshold rules — get notified in real time when they
               trigger
             </p>
           </div>
-
-          <!-- Live indicator -->
-          <div class="flex items-center gap-2 text-xs text-gray-500">
+          <div
+            style="display:flex;align-items:center;gap:8px;
+                      font-size:0.75rem;color:#6b7280;"
+          >
             <span
-              class="w-2 h-2 rounded-full bg-green-400 animate-pulse"
+              style="width:8px;height:8px;border-radius:50%;
+                         background:#22c55e;display:inline-block;
+                         animation:eco-pulse 1.5s ease-in-out infinite;"
             ></span>
             Live stream active
           </div>
         </div>
 
-        <!-- How it works banner (shown only when no alerts exist) -->
+        <!-- How it works — only when empty -->
         @if (!loading() && alerts().length === 0) {
-          <div class="eco-card border border-blue-100 bg-blue-50/40">
-            <div class="flex items-start gap-4">
-              <span class="text-3xl">💡</span>
-              <div>
-                <h3 class="text-sm font-semibold text-gray-800 mb-1">
-                  How alerts work
-                </h3>
-                <p class="text-sm text-gray-600 leading-relaxed">
-                  Create a rule by choosing a station, metric, condition, and
-                  threshold. The server evaluates active rules every minute.
-                  When a rule triggers, a live notification appears in the
-                  sidebar instantly — no page refresh needed.
-                </p>
-              </div>
+          <div
+            class="eco-card eco-alert-info"
+            style="display:flex;align-items:flex-start;gap:1rem;padding:1.25rem 1.5rem;"
+          >
+            <span style="font-size:1.75rem;flex-shrink:0;">💡</span>
+            <div>
+              <h3
+                style="font-size:0.875rem;font-weight:600;color:#1e40af;margin:0 0 4px;"
+              >
+                How alerts work
+              </h3>
+              <p
+                style="font-size:0.875rem;color:#1e40af;margin:0;line-height:1.6;"
+              >
+                Create a rule by choosing a station, metric, condition, and
+                threshold. The server evaluates active rules every minute. When
+                a rule triggers, a live notification appears in the sidebar
+                instantly.
+              </p>
             </div>
           </div>
         }
 
         <!-- Loading skeleton -->
         @if (loading()) {
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div
+            style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;"
+          >
             @for (i of [1, 2, 3, 4]; track i) {
-              <div class="eco-card h-32 animate-pulse bg-gray-50"></div>
+              <div
+                class="eco-skeleton"
+                style="height:140px;border-radius:12px;"
+              ></div>
             }
           </div>
         }
@@ -87,7 +99,6 @@ import { Alert, Station } from '../../core/models';
       </div>
     </app-shell>
 
-    <!-- Create / Edit modal -->
     @if (showForm()) {
       <app-alert-form
         #formRef
@@ -107,7 +118,6 @@ export class AlertsComponent implements OnInit, OnDestroy {
   editingAlert = signal<Alert | null>(null);
 
   @ViewChild('formRef') formRef!: AlertFormComponent;
-
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -137,12 +147,11 @@ export class AlertsComponent implements OnInit, OnDestroy {
 
   onSaved(payload: AlertPayload) {
     const editing = this.editingAlert();
-
-    const request$ = editing
+    const req$ = editing
       ? this.alertSvc.update(editing.id, payload)
       : this.alertSvc.create(payload);
 
-    request$.pipe(takeUntil(this.destroy$)).subscribe({
+    req$.pipe(takeUntil(this.destroy$)).subscribe({
       next: (saved) => {
         if (editing) {
           this.alerts.update((list) =>
@@ -154,9 +163,7 @@ export class AlertsComponent implements OnInit, OnDestroy {
         this.closeForm();
       },
       error: (err) => {
-        const msg =
-          err.error?.message ?? 'Something went wrong. Please try again.';
-        this.formRef?.setError(msg);
+        this.formRef?.setError(err.error?.message ?? 'Something went wrong.');
       },
     });
   }
@@ -165,20 +172,20 @@ export class AlertsComponent implements OnInit, OnDestroy {
     this.alertSvc
       .delete(id)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.alerts.update((list) => list.filter((a) => a.id !== id));
-      });
+      .subscribe(() =>
+        this.alerts.update((list) => list.filter((a) => a.id !== id)),
+      );
   }
 
   onToggle(alert: Alert) {
     this.alertSvc
       .update(alert.id, { is_active: !alert.is_active })
       .pipe(takeUntil(this.destroy$))
-      .subscribe((updated) => {
+      .subscribe((updated) =>
         this.alerts.update((list) =>
           list.map((a) => (a.id === updated.id ? updated : a)),
-        );
-      });
+        ),
+      );
   }
 
   ngOnDestroy() {
