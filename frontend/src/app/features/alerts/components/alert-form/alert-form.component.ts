@@ -29,155 +29,116 @@ export type AlertPayload = {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <!-- Backdrop -->
-    <div
-      class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm
-                flex items-center justify-center p-4"
-      (click)="onBackdrop($event)"
-    >
-      <div
-        class="relative w-full max-w-md bg-white rounded-2xl shadow-elevated z-50"
-        (click)="$event.stopPropagation()"
-      >
-        <!-- Header -->
-        <div
-          class="flex items-center justify-between px-6 py-4 border-b border-gray-100"
-        >
-          <h2 class="text-base font-semibold text-gray-900">
+    <div class="eco-modal-backdrop" (click)="onBackdrop($event)">
+      <div class="eco-modal" (click)="$event.stopPropagation()">
+        <div class="eco-modal-header">
+          <h2 class="eco-modal-title">
             {{ isEdit() ? 'Edit alert rule' : 'New alert rule' }}
           </h2>
-          <button
-            (click)="cancel.emit()"
-            class="w-8 h-8 flex items-center justify-center rounded-lg
-                         text-gray-400 hover:text-gray-600 hover:bg-gray-100
-                         transition-colors"
-          >
-            ✕
-          </button>
+          <button (click)="cancel.emit()" class="eco-modal-close">✕</button>
         </div>
 
-        <!-- Form -->
-        <form
-          [formGroup]="form"
-          (ngSubmit)="submit()"
-          class="px-6 py-5 space-y-4"
-        >
-          <!-- Station -->
-          <div>
-            <label class="eco-label">Station *</label>
-            <select formControlName="station_id" class="eco-input">
-              <option [ngValue]="null">Select a station</option>
-              @for (s of stations; track s.id) {
-                <option [ngValue]="s.id">{{ s.name }} — {{ s.city }}</option>
-              }
-            </select>
-            @if (f['station_id'].touched && f['station_id'].invalid) {
-              <p class="text-xs text-red-500 mt-1">Please select a station.</p>
-            }
-          </div>
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <div class="eco-modal-body">
+            <div style="display:flex;flex-direction:column;gap:1rem;">
+              <div class="eco-form-field">
+                <label class="eco-label">Station *</label>
+                <select formControlName="station_id" class="eco-input">
+                  <option [ngValue]="null">Select a station</option>
+                  @for (s of stations; track s.id) {
+                    <option [ngValue]="s.id">
+                      {{ s.name }} — {{ s.city }}
+                    </option>
+                  }
+                </select>
+                @if (f['station_id'].touched && f['station_id'].invalid) {
+                  <span class="eco-field-error">Please select a station.</span>
+                }
+              </div>
 
-          <!-- Metric -->
-          <div>
-            <label class="eco-label">Metric *</label>
-            <input
-              formControlName="metric"
-              list="alert-metrics"
-              class="eco-input"
-              placeholder="e.g. pm25, temperature, co2"
-            />
-            <datalist id="alert-metrics">
-              @for (m of commonMetrics; track m) {
-                <option [value]="m">{{ m }}</option>
-              }
-            </datalist>
-            @if (f['metric'].touched && f['metric'].invalid) {
-              <p class="text-xs text-red-500 mt-1">Metric is required.</p>
-            }
-          </div>
+              <div class="eco-form-field">
+                <label class="eco-label">Metric *</label>
+                <input
+                  formControlName="metric"
+                  list="alert-metrics"
+                  class="eco-input"
+                  placeholder="e.g. pm25, temperature, co2"
+                />
+                <datalist id="alert-metrics">
+                  @for (m of commonMetrics; track m) {
+                    <option [value]="m">{{ m }}</option>
+                  }
+                </datalist>
+                @if (f['metric'].touched && f['metric'].invalid) {
+                  <span class="eco-field-error">Metric is required.</span>
+                }
+              </div>
 
-          <!-- Operator + Threshold side by side -->
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="eco-label">Condition *</label>
-              <select formControlName="operator" class="eco-input">
-                <option value="">Select</option>
-                <option value="gt">Greater than (&gt;)</option>
-                <option value="gte">At least (≥)</option>
-                <option value="lt">Less than (&lt;)</option>
-                <option value="lte">At most (≤)</option>
-                <option value="eq">Equal to (=)</option>
-              </select>
-              @if (f['operator'].touched && f['operator'].invalid) {
-                <p class="text-xs text-red-500 mt-1">Condition required.</p>
+              <div class="eco-form-grid">
+                <div class="eco-form-field">
+                  <label class="eco-label">Condition *</label>
+                  <select formControlName="operator" class="eco-input">
+                    <option value="">Select</option>
+                    <option value="gt">Greater than (&gt;)</option>
+                    <option value="gte">At least (≥)</option>
+                    <option value="lt">Less than (&lt;)</option>
+                    <option value="lte">At most (≤)</option>
+                    <option value="eq">Equal to (=)</option>
+                  </select>
+                  @if (f['operator'].touched && f['operator'].invalid) {
+                    <span class="eco-field-error">Required.</span>
+                  }
+                </div>
+                <div class="eco-form-field">
+                  <label class="eco-label">Threshold *</label>
+                  <input
+                    formControlName="threshold"
+                    type="number"
+                    step="any"
+                    class="eco-input"
+                    placeholder="e.g. 150"
+                  />
+                  @if (f['threshold'].touched && f['threshold'].invalid) {
+                    <span class="eco-field-error">Enter a number.</span>
+                  }
+                </div>
+              </div>
+
+              @if (
+                form.value.metric &&
+                form.value.operator &&
+                form.value.threshold !== null
+              ) {
+                <div class="eco-alert eco-alert-info">
+                  🔔 Trigger when <strong>{{ form.value.metric }}</strong>
+                  {{ operatorLabel(form.value.operator) }}
+                  <strong>{{ form.value.threshold }}</strong>
+                  at <strong>{{ stationName(form.value.station_id) }}</strong>
+                </div>
+              }
+
+              <div class="eco-form-field">
+                <label class="eco-label">Status</label>
+                <div class="eco-toggle-wrap" (click)="toggleActive()">
+                  <div
+                    class="eco-toggle-track"
+                    [class.on]="form.value.is_active"
+                  >
+                    <div class="eco-toggle-thumb"></div>
+                  </div>
+                  <span class="eco-toggle-label">
+                    {{ form.value.is_active ? 'Alert active' : 'Alert paused' }}
+                  </span>
+                </div>
+              </div>
+
+              @if (serverError()) {
+                <div class="eco-alert eco-alert-error">{{ serverError() }}</div>
               }
             </div>
-
-            <div>
-              <label class="eco-label">Threshold *</label>
-              <input
-                formControlName="threshold"
-                type="number"
-                step="any"
-                class="eco-input"
-                placeholder="e.g. 150"
-              />
-              @if (f['threshold'].touched && f['threshold'].invalid) {
-                <p class="text-xs text-red-500 mt-1">Enter a number.</p>
-              }
-            </div>
           </div>
 
-          <!-- Preview sentence -->
-          @if (
-            form.value.metric &&
-            form.value.operator &&
-            form.value.threshold !== null
-          ) {
-            <div
-              class="p-3 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-800"
-            >
-              🔔 Trigger when
-              <strong>{{ form.value.metric }}</strong>
-              {{ operatorLabel(form.value.operator) }}
-              <strong>{{ form.value.threshold }}</strong>
-              at
-              <strong>{{ stationName(form.value.station_id) }}</strong>
-            </div>
-          }
-
-          <!-- Active toggle -->
-          <div class="flex items-center gap-3">
-            <button
-              type="button"
-              (click)="toggleActive()"
-              [class]="form.value.is_active ? 'bg-secondary' : 'bg-gray-300'"
-              class="relative w-11 h-6 rounded-full transition-colors duration-200
-                           focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-1"
-            >
-              <span
-                [class]="
-                  form.value.is_active ? 'translate-x-6' : 'translate-x-1'
-                "
-                class="block w-4 h-4 bg-white rounded-full shadow
-                           transition-transform duration-200"
-              ></span>
-            </button>
-            <span class="text-sm text-gray-700">
-              {{ form.value.is_active ? 'Alert active' : 'Alert paused' }}
-            </span>
-          </div>
-
-          <!-- Server error -->
-          @if (serverError()) {
-            <div
-              class="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"
-            >
-              {{ serverError() }}
-            </div>
-          }
-
-          <!-- Actions -->
-          <div class="flex items-center justify-end gap-3 pt-2">
+          <div class="eco-modal-footer">
             <button
               type="button"
               (click)="cancel.emit()"
@@ -187,31 +148,9 @@ export type AlertPayload = {
             </button>
             <button type="submit" [disabled]="saving()" class="eco-btn-primary">
               @if (saving()) {
-                <span class="flex items-center gap-2">
-                  <svg
-                    class="w-4 h-4 animate-spin"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <circle
-                      class="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      stroke-width="4"
-                    />
-                    <path
-                      class="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v8H4z"
-                    />
-                  </svg>
-                  Saving…
-                </span>
-              } @else {
-                {{ isEdit() ? 'Save changes' : 'Create alert' }}
+                <span class="eco-spinner"></span>
               }
+              {{ isEdit() ? 'Save changes' : 'Create alert' }}
             </button>
           </div>
         </form>

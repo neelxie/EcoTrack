@@ -30,192 +30,154 @@ import { Station, PaginatedResponse } from '../../../../core/models';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
-    <div class="eco-card">
-      <!-- Toolbar -->
-      <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-5">
-        <div class="flex-1 relative">
-          <span
-            class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"
-            >🔍</span
-          >
-          <input
-            [formControl]="searchCtrl"
-            class="eco-input pl-8"
-            placeholder="Search by name, city, country…"
-          />
-        </div>
+  <div class="eco-card" style="padding:0;overflow:hidden;">
 
-        <div class="flex items-center gap-2">
-          <!-- Type filter -->
-          <select [formControl]="typeCtrl" class="eco-input w-auto">
-            <option value="">All types</option>
-            <option value="air_quality">Air quality</option>
-            <option value="weather">Weather</option>
-            <option value="emissions">Emissions</option>
-          </select>
+    <!-- Toolbar -->
+    <div style="padding:1rem 1.5rem;border-bottom:1px solid #f3f4f6;
+                display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;">
+      <div style="flex:1;min-width:200px;position:relative;">
+        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);
+                     color:#9ca3af;font-size:0.875rem;">🔍</span>
+        <input [formControl]="searchCtrl"
+               class="eco-input"
+               style="padding-left:2rem;"
+               placeholder="Search by name, city, country…" />
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+        <select [formControl]="typeCtrl" class="eco-input" style="width:auto;">
+          <option value="">All types</option>
+          <option value="air_quality">Air quality</option>
+          <option value="weather">Weather</option>
+          <option value="emissions">Emissions</option>
+        </select>
+        <button (click)="toggleActive()"
+                [class]="activeOnly() ? 'eco-btn-primary' : 'eco-btn-outlined'">
+          {{ activeOnly() ? '✅ Active only' : 'All stations' }}
+        </button>
+        <button (click)="addClicked.emit()" class="eco-btn-secondary">
+          + Add station
+        </button>
+      </div>
+    </div>
 
-          <!-- Active filter -->
-          <button
-            (click)="toggleActive()"
-            [class]="activeOnly() ? 'eco-btn-primary' : 'eco-btn-outlined'"
-            class="whitespace-nowrap"
-          >
-            {{ activeOnly() ? '✅ Active' : 'All' }}
-          </button>
+    <!-- Skeleton -->
+    @if (loading()) {
+      <div style="padding:1rem 1.5rem;display:flex;flex-direction:column;gap:0.75rem;">
+        @for (i of [1,2,3,4,5]; track i) {
+          <div class="eco-skeleton" style="height:44px;border-radius:8px;"></div>
+        }
+      </div>
+    }
 
-          <!-- Add -->
-          <button
-            (click)="addClicked.emit()"
-            class="eco-btn-secondary whitespace-nowrap"
-          >
-            + Add station
-          </button>
-        </div>
+    <!-- Table -->
+    @if (!loading()) {
+      <div style="overflow-x:auto;">
+        <table class="eco-table">
+          <thead>
+            <tr>
+              <th>
+                <button (click)="sort('name')"
+                        style="background:none;border:none;cursor:pointer;
+                               font:inherit;color:inherit;display:flex;align-items:center;gap:4px;">
+                  Name {{ sortIndicator('name') }}
+                </button>
+              </th>
+              <th>Location</th>
+              <th>Type</th>
+              <th>Coordinates</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (station of stations(); track station.id) {
+              <tr style="cursor:pointer;" (click)="rowClicked.emit(station)">
+                <td style="font-weight:500;color:#111827;">{{ station.name }}</td>
+                <td style="color:#6b7280;">{{ station.city }}, {{ station.country }}</td>
+                <td>
+                  <span [class]="typeBadge(station.type)">
+                    {{ station.type.replace('_',' ') }}
+                  </span>
+                </td>
+                <td style="font-family:monospace;font-size:0.75rem;color:#9ca3af;">
+                  {{ station.latitude | number:'1.4-4' }},
+                  {{ station.longitude | number:'1.4-4' }}
+                </td>
+                <td>
+                  @if (station.is_active) {
+                    <span class="eco-badge eco-badge-success">Active</span>
+                  } @else {
+                    <span class="eco-badge eco-badge-error">Inactive</span>
+                  }
+                </td>
+                <td (click)="$event.stopPropagation()">
+                  <div style="display:flex;align-items:center;gap:4px;">
+                    <button (click)="editClicked.emit(station)"
+                            style="padding:6px;border-radius:6px;border:none;
+                                   background:transparent;cursor:pointer;font-size:1rem;
+                                   color:#6b7280;transition:background 0.15s;"
+                            onmouseover="this.style.background='#eff6ff'"
+                            onmouseout="this.style.background='transparent'"
+                            title="Edit">✏️</button>
+                    <button (click)="confirmDelete(station)"
+                            style="padding:6px;border-radius:6px;border:none;
+                                   background:transparent;cursor:pointer;font-size:1rem;
+                                   color:#6b7280;transition:background 0.15s;"
+                            onmouseover="this.style.background='#fef2f2'"
+                            onmouseout="this.style.background='transparent'"
+                            title="Delete">🗑️</button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6">
+                  <div class="eco-empty">
+                    <span class="eco-empty-icon">📭</span>
+                    <p class="eco-empty-title">No stations found</p>
+                    <p style="margin:4px 0 0;">
+                      Try adjusting your search or
+                      <button (click)="addClicked.emit()"
+                              style="background:none;border:none;color:#1565c0;
+                                     cursor:pointer;font:inherit;font-weight:500;">
+                        add a new one
+                      </button>
+                    </p>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
       </div>
 
-      <!-- Loading skeleton -->
-      @if (loading()) {
-        <div class="space-y-3">
-          @for (i of [1, 2, 3, 4, 5]; track i) {
-            <div class="h-12 bg-gray-100 rounded-lg animate-pulse"></div>
-          }
-        </div>
-      }
-
-      <!-- Table -->
-      @if (!loading()) {
-        <div class="overflow-x-auto">
-          <table class="eco-table">
-            <thead>
-              <tr>
-                <th>
-                  <button
-                    (click)="sort('name')"
-                    class="flex items-center gap-1 hover:text-primary"
-                  >
-                    Name {{ sortIndicator('name') }}
-                  </button>
-                </th>
-                <th>Location</th>
-                <th>
-                  <button
-                    (click)="sort('type')"
-                    class="flex items-center gap-1 hover:text-primary"
-                  >
-                    Type {{ sortIndicator('type') }}
-                  </button>
-                </th>
-                <th>Coordinates</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (station of stations(); track station.id) {
-                <tr class="cursor-pointer" (click)="rowClicked.emit(station)">
-                  <td class="font-medium text-gray-900">{{ station.name }}</td>
-                  <td class="text-gray-600">
-                    {{ station.city }}, {{ station.country }}
-                  </td>
-                  <td>
-                    <span class="eco-badge" [class]="typeBadge(station.type)">
-                      {{ station.type.replace('_', ' ') }}
-                    </span>
-                  </td>
-                  <td class="text-gray-500 font-mono text-xs">
-                    {{ station.latitude | number: '1.4-4' }},
-                    {{ station.longitude | number: '1.4-4' }}
-                  </td>
-                  <td>
-                    @if (station.is_active) {
-                      <span class="eco-badge-success">Active</span>
-                    } @else {
-                      <span class="eco-badge-error">Inactive</span>
-                    }
-                  </td>
-                  <td (click)="$event.stopPropagation()">
-                    <div class="flex items-center gap-1">
-                      <button
-                        (click)="editClicked.emit(station)"
-                        class="p-1.5 rounded-lg hover:bg-blue-50 text-gray-500
-                                     hover:text-primary transition-colors"
-                        title="Edit"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        (click)="confirmDelete(station)"
-                        class="p-1.5 rounded-lg hover:bg-red-50 text-gray-500
-                                     hover:text-error transition-colors"
-                        title="Delete"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              } @empty {
-                <tr>
-                  <td
-                    colspan="6"
-                    class="text-center py-10 text-gray-400 text-sm"
-                  >
-                    No stations found. Try adjusting your search or
-                    <button
-                      (click)="addClicked.emit()"
-                      class="text-primary hover:underline"
-                    >
-                      add a new one</button
-                    >.
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Pagination -->
-        @if (totalPages() > 1) {
-          <div
-            class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100"
-          >
-            <span class="text-xs text-gray-500">
-              Page {{ currentPage() }} of {{ totalPages() }} ·
-              {{ total() }} stations
-            </span>
-            <div class="flex items-center gap-1">
-              <button
-                (click)="setPage(currentPage() - 1)"
-                [disabled]="currentPage() === 1"
-                class="eco-btn-outlined px-3 py-1.5 text-xs disabled:opacity-40"
-              >
-                ← Prev
-              </button>
-              @for (p of pageRange(); track p) {
-                <button
-                  (click)="setPage(p)"
-                  [class]="
-                    p === currentPage()
-                      ? 'eco-btn-primary px-3 py-1.5 text-xs'
-                      : 'eco-btn-outlined px-3 py-1.5 text-xs'
-                  "
-                >
-                  {{ p }}
-                </button>
-              }
-              <button
-                (click)="setPage(currentPage() + 1)"
-                [disabled]="currentPage() === totalPages()"
-                class="eco-btn-outlined px-3 py-1.5 text-xs disabled:opacity-40"
-              >
-                Next →
-              </button>
-            </div>
+      <!-- Pagination -->
+      @if (totalPages() > 1) {
+        <div style="display:flex;align-items:center;justify-content:space-between;
+                    padding:0.75rem 1.5rem;border-top:1px solid #f3f4f6;">
+          <span style="font-size:0.75rem;color:#9ca3af;">
+            Page {{ currentPage() }} of {{ totalPages() }} · {{ total() }} stations
+          </span>
+          <div style="display:flex;gap:4px;">
+            <button (click)="setPage(currentPage()-1)"
+                    [disabled]="currentPage()===1"
+                    class="eco-btn-outlined"
+                    style="padding:4px 10px;font-size:0.75rem;">← Prev</button>
+            @for (p of pageRange(); track p) {
+              <button (click)="setPage(p)"
+                      [class]="p===currentPage() ? 'eco-btn-primary' : 'eco-btn-outlined'"
+                      style="padding:4px 10px;font-size:0.75rem;">{{ p }}</button>
+            }
+            <button (click)="setPage(currentPage()+1)"
+                    [disabled]="currentPage()===totalPages()"
+                    class="eco-btn-outlined"
+                    style="padding:4px 10px;font-size:0.75rem;">Next →</button>
           </div>
-        }
+        </div>
       }
-    </div>
-  `,
+    }
+  </div>
+`,
 })
 export class StationListComponent implements OnInit, OnDestroy {
   @Output() addClicked = new EventEmitter<void>();

@@ -25,14 +25,14 @@ export interface ReadingFilter {
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="eco-card">
-      <h2 class="text-sm font-semibold text-gray-700 mb-4">Filter readings</h2>
-
+      <h2 class="eco-section-title" style="margin-bottom:1rem;">
+        Filter readings
+      </h2>
       <form
         [formGroup]="form"
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+        style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;"
       >
-        <!-- Station -->
-        <div>
+        <div class="eco-form-field">
           <label class="eco-label">Station</label>
           <select formControlName="stationId" class="eco-input">
             <option [ngValue]="null">Select a station</option>
@@ -41,49 +41,42 @@ export interface ReadingFilter {
             }
           </select>
         </div>
-
-        <!-- Metric -->
-        <div>
+        <div class="eco-form-field">
           <label class="eco-label">Metric</label>
-          <div class="relative">
-            <input
-              formControlName="metric"
-              list="metric-options"
-              class="eco-input"
-              placeholder="e.g. pm25, temperature"
-            />
-            <datalist id="metric-options">
-              @for (m of commonMetrics; track m) {
-                <option [value]="m">{{ m }}</option>
-              }
-            </datalist>
-          </div>
+          <input
+            formControlName="metric"
+            list="metric-options"
+            class="eco-input"
+            placeholder="e.g. pm25, temperature"
+          />
+          <datalist id="metric-options">
+            @for (m of commonMetrics; track m) {
+              <option [value]="m">{{ m }}</option>
+            }
+          </datalist>
         </div>
-
-        <!-- From -->
-        <div>
+        <div class="eco-form-field">
           <label class="eco-label">From</label>
           <input type="date" formControlName="from" class="eco-input" />
         </div>
-
-        <!-- To -->
-        <div>
+        <div class="eco-form-field">
           <label class="eco-label">To</label>
           <input type="date" formControlName="to" class="eco-input" />
         </div>
       </form>
-
-      <!-- Quick range pills -->
-      <div class="flex items-center gap-2 mt-4 flex-wrap">
-        <span class="text-xs text-gray-500 font-medium">Quick range:</span>
+      <div
+        style="display:flex;align-items:center;gap:8px;margin-top:1rem;flex-wrap:wrap;"
+      >
+        <span class="eco-meta" style="font-weight:500;">Quick range:</span>
         @for (range of quickRanges; track range.label) {
           <button
             (click)="applyRange(range.days)"
             [class]="
               activeRange() === range.days
-                ? 'eco-btn-primary px-3 py-1 text-xs'
-                : 'eco-btn-outlined px-3 py-1 text-xs'
+                ? 'eco-btn-primary'
+                : 'eco-btn-outlined'
             "
+            style="padding:4px 12px;font-size:0.75rem;"
           >
             {{ range.label }}
           </button>

@@ -14,25 +14,27 @@ import { Alert, Station } from '../../../../core/models';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="eco-card">
-      <!-- Toolbar -->
-      <div class="flex items-center justify-between mb-5">
-        <div class="flex items-center gap-3">
-          <h2 class="text-sm font-semibold text-gray-700">Your alert rules</h2>
+    <div class="eco-card" style="padding:0;overflow:hidden;">
+      <div
+        style="padding:1rem 1.5rem;border-bottom:1px solid #f3f4f6;
+                display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;"
+      >
+        <div style="display:flex;align-items:center;gap:8px;">
+          <h2 class="eco-section-title">Alert rules</h2>
           @if (alerts.length) {
-            <span class="eco-badge-info">{{ alerts.length }}</span>
+            <span class="eco-badge eco-badge-info">{{ alerts.length }}</span>
           }
         </div>
-        <div class="flex items-center gap-2">
-          <!-- Status filter pills -->
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
           @for (opt of filterOpts; track opt.value) {
             <button
               (click)="activeFilter.set(opt.value)"
               [class]="
                 activeFilter() === opt.value
-                  ? 'eco-btn-primary px-3 py-1.5 text-xs'
-                  : 'eco-btn-outlined px-3 py-1.5 text-xs'
+                  ? 'eco-btn-primary'
+                  : 'eco-btn-outlined'
               "
+              style="padding:4px 12px;font-size:0.75rem;"
             >
               {{ opt.label }}
             </button>
@@ -43,73 +45,66 @@ import { Alert, Station } from '../../../../core/models';
         </div>
       </div>
 
-      <!-- Empty state -->
       @if (!filtered().length) {
-        <div class="py-14 text-center">
-          <span class="text-5xl">🔕</span>
-          <p class="text-sm text-gray-500 mt-3">No alert rules yet.</p>
-          <button
-            (click)="addClicked.emit()"
-            class="eco-btn-primary mt-4 text-sm"
-          >
+        <div class="eco-empty">
+          <span class="eco-empty-icon">🔕</span>
+          <p class="eco-empty-title">No alert rules yet</p>
+          <p style="margin:4px 0 12px;font-size:0.875rem;color:#9ca3af;">
+            Create a rule to get notified when a threshold is crossed.
+          </p>
+          <button (click)="addClicked.emit()" class="eco-btn-primary">
             Create your first alert
           </button>
         </div>
       }
 
-      <!-- Alert cards grid -->
       @if (filtered().length) {
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div
+          style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+                  gap:1rem;padding:1.25rem;"
+        >
           @for (alert of filtered(); track alert.id) {
             <div
-              class="border rounded-xl p-4 transition-all duration-150"
-              [class]="
-                alert.is_active
-                  ? 'border-blue-100 bg-blue-50/30 hover:border-blue-200'
-                  : 'border-gray-100 bg-gray-50/50 hover:border-gray-200'
-              "
+              style="border:1.5px solid;border-radius:10px;padding:1rem;transition:border-color 0.15s;"
+              [style.border-color]="alert.is_active ? '#bfdbfe' : '#e5e7eb'"
+              [style.background]="alert.is_active ? '#f8fbff' : '#fafafa'"
             >
-              <!-- Card header -->
-              <div class="flex items-start justify-between gap-2 mb-3">
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <span class="eco-badge-info text-xs">{{
-                      alert.metric
-                    }}</span>
-                    @if (alert.is_active) {
-                      <span class="eco-badge-success text-xs">Active</span>
-                    } @else {
-                      <span class="eco-badge-error text-xs">Paused</span>
-                    }
-                  </div>
-                  <p class="text-sm font-medium text-gray-900 mt-1.5 truncate">
-                    {{ stationName(alert.station_id) }}
-                  </p>
+              <div
+                style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;"
+              >
+                <div
+                  style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;"
+                >
+                  <span class="eco-badge eco-badge-info">{{
+                    alert.metric
+                  }}</span>
+                  @if (alert.is_active) {
+                    <span class="eco-badge eco-badge-success">Active</span>
+                  } @else {
+                    <span class="eco-badge eco-badge-gray">Paused</span>
+                  }
                 </div>
-
-                <!-- Actions -->
-                <div class="flex items-center gap-1 flex-shrink-0">
-                  <!-- Toggle active -->
+                <div style="display:flex;gap:2px;flex-shrink:0;">
                   <button
                     (click)="toggleClicked.emit(alert)"
-                    [title]="alert.is_active ? 'Pause alert' : 'Activate alert'"
-                    class="p-1.5 rounded-lg hover:bg-white text-gray-400
-                           hover:text-primary transition-colors"
+                    style="padding:4px 6px;border-radius:6px;border:none;
+                               background:transparent;cursor:pointer;font-size:0.9rem;"
+                    [title]="alert.is_active ? 'Pause' : 'Activate'"
                   >
                     {{ alert.is_active ? '⏸' : '▶️' }}
                   </button>
                   <button
                     (click)="editClicked.emit(alert)"
-                    class="p-1.5 rounded-lg hover:bg-white text-gray-400
-                           hover:text-primary transition-colors"
+                    style="padding:4px 6px;border-radius:6px;border:none;
+                               background:transparent;cursor:pointer;font-size:0.9rem;"
                     title="Edit"
                   >
                     ✏️
                   </button>
                   <button
                     (click)="confirmDelete(alert)"
-                    class="p-1.5 rounded-lg hover:bg-white text-gray-400
-                           hover:text-error transition-colors"
+                    style="padding:4px 6px;border-radius:6px;border:none;
+                               background:transparent;cursor:pointer;font-size:0.9rem;"
                     title="Delete"
                   >
                     🗑️
@@ -117,29 +112,31 @@ import { Alert, Station } from '../../../../core/models';
                 </div>
               </div>
 
-              <!-- Rule summary -->
+              <p
+                style="font-size:0.875rem;font-weight:500;color:#111827;
+                      margin:0 0 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+              >
+                {{ stationName(alert.station_id) }}
+              </p>
+
               <div
-                class="text-sm text-gray-700 bg-white rounded-lg px-3 py-2 border border-gray-100"
+                style="background:white;border:1px solid #e5e7eb;border-radius:8px;
+                        padding:8px 12px;font-size:0.8125rem;color:#374151;"
               >
                 Trigger when
-                <span class="font-semibold text-primary">{{
-                  alert.metric
-                }}</span>
-                <span class="mx-1">{{ operatorLabel(alert.operator) }}</span>
-                <span class="font-semibold text-gray-900">{{
-                  alert.threshold
-                }}</span>
+                <strong style="color:#1565c0;">{{ alert.metric }}</strong>
+                {{ operatorLabel(alert.operator) }}
+                <strong style="color:#111827;">{{ alert.threshold }}</strong>
               </div>
 
-              <!-- Last triggered -->
-              @if (alert.last_triggered_at) {
-                <p class="text-xs text-gray-400 mt-2">
+              <p class="eco-meta" style="margin-top:8px;">
+                @if (alert.last_triggered_at) {
                   Last triggered:
                   {{ alert.last_triggered_at | date: 'dd MMM yyyy, HH:mm' }}
-                </p>
-              } @else {
-                <p class="text-xs text-gray-400 mt-2">Never triggered</p>
-              }
+                } @else {
+                  Never triggered
+                }
+              </p>
             </div>
           }
         </div>

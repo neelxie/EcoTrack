@@ -101,7 +101,8 @@ import { ReadingSummary } from '../../../../core/models';
           <div style="display:flex;align-items:center;justify-content:space-between;
                       padding:12px 24px;border-top:1px solid #F1F5F9;">
             <span style="font-size:0.75rem;color:#94A3B8;">
-              {{ (page()-1)*pageSize+1 }}–{{ [page()*pageSize, data.length] | min }}
+              {{ page() * pageSize < data.length ? page() * pageSize : data.length }}
+
               of {{ data.length }}
             </span>
             <div style="display:flex;gap:4px;">
@@ -130,7 +131,7 @@ export class ReportTableComponent {
   }
   get data() { return this._data; }
 
-  @Input() stationNames: Record<number, string> = {};
+  @Input() stationNames: Record<number, string | undefined> = {};
 
   private _data:    ReadingSummary[] = [];
   private sorted:   ReadingSummary[] = [];

@@ -12,43 +12,56 @@ import { Alert } from '../../../../core/models';
   imports: [CommonModule, RouterLink],
   template: `
     <a
-      routerLink="/alerts"
-      class="relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100
-              hover:bg-white/10 hover:text-white transition-all duration-150 text-sm font-medium"
+      [routerLink]="['/alerts']"
+      routerLinkActive="active"
+      class="nav-link"
+      style="position:relative;"
     >
-      <span class="text-lg">🔔</span>
+      <span class="nav-icon">🔔</span>
       Alerts
       @if (count() > 0) {
         <span
-          class="absolute left-6 top-1.5 min-w-[18px] h-[18px] px-1
-                     bg-red-500 text-white text-[10px] font-bold rounded-full
-                     flex items-center justify-center animate-pulse"
+          style="position:absolute;top:6px;left:26px;min-width:16px;height:16px;
+                   padding:0 3px;background:#ef4444;color:white;font-size:10px;
+                   font-weight:700;border-radius:9999px;display:flex;
+                   align-items:center;justify-content:center;line-height:1;"
         >
           {{ count() > 99 ? '99+' : count() }}
         </span>
       }
     </a>
 
-    <!-- Triggered alert toasts -->
-    <div class="fixed top-4 right-4 z-50 space-y-2 pointer-events-none">
+    <!-- Toasts -->
+    <div
+      style="position:fixed;top:1rem;right:1rem;z-index:50;
+              display:flex;flex-direction:column;gap:8px;pointer-events:none;"
+    >
       @for (toast of toasts(); track toast.id) {
         <div
-          class="pointer-events-auto flex items-start gap-3 bg-white border border-red-200
-                    rounded-xl shadow-elevated px-4 py-3 max-w-xs animate-slide-in"
+          style="pointer-events:auto;display:flex;align-items:flex-start;gap:12px;
+                  background:white;border:1px solid #fecaca;border-radius:12px;
+                  box-shadow:0 8px 24px rgba(0,0,0,0.12);padding:12px 16px;
+                  max-width:320px;animation:slide-in-right 0.25s ease-out;"
         >
-          <span class="text-red-500 text-lg mt-0.5">⚠️</span>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold text-gray-900 truncate">
+          <span style="color:#ef4444;font-size:1.1rem;margin-top:1px;">⚠️</span>
+          <div style="flex:1;min-width:0;">
+            <p
+              style="font-size:0.875rem;font-weight:600;color:#111827;margin:0;"
+            >
               Alert triggered
             </p>
-            <p class="text-xs text-gray-500 mt-0.5 truncate">
+            <p
+              style="font-size:0.75rem;color:#6b7280;margin:2px 0 0;
+                    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+            >
               {{ toast.station?.name }} — {{ toast.metric }}
               {{ toast.operator }} {{ toast.threshold }}
             </p>
           </div>
           <button
             (click)="dismissToast(toast.id)"
-            class="text-gray-300 hover:text-gray-500 text-xs mt-0.5"
+            style="background:none;border:none;cursor:pointer;
+                       color:#d1d5db;font-size:0.75rem;padding:0;"
           >
             ✕
           </button>
@@ -58,7 +71,7 @@ import { Alert } from '../../../../core/models';
   `,
   styles: [
     `
-      @keyframes slide-in {
+      @keyframes slide-in-right {
         from {
           opacity: 0;
           transform: translateX(100%);
@@ -67,9 +80,6 @@ import { Alert } from '../../../../core/models';
           opacity: 1;
           transform: translateX(0);
         }
-      }
-      .animate-slide-in {
-        animation: slide-in 0.25s ease-out;
       }
     `,
   ],

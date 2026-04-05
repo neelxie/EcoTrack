@@ -23,76 +23,52 @@ import { Station } from '../../../../core/models';
   template: `
     <div class="eco-modal-backdrop" (click)="onBackdrop($event)">
       <div class="eco-modal" (click)="$event.stopPropagation()">
-        <!-- Header -->
         <div class="eco-modal-header">
           <h2 class="eco-modal-title">
             {{ isEdit() ? 'Edit station' : 'Add new station' }}
           </h2>
-          <button class="eco-modal-close" (click)="cancel.emit()" type="button">
-            ✕
-          </button>
+          <button (click)="cancel.emit()" class="eco-modal-close">✕</button>
         </div>
 
-        <!-- Body -->
-        <div class="eco-modal-body">
-          <!-- Server error -->
-          @if (serverError()) {
-            <div
-              class="eco-alert eco-alert-error"
-              style="margin-bottom:1.25rem"
-            >
-              <span>⚠️</span>
-              <span>{{ serverError() }}</span>
-            </div>
-          }
-
-          <form [formGroup]="form" (ngSubmit)="submit()" id="station-form">
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <div class="eco-modal-body">
             <div class="eco-form-grid">
-              <!-- Name -->
               <div class="eco-form-field span-2">
                 <label class="eco-label">Station name *</label>
                 <input
                   formControlName="name"
                   class="eco-input"
-                  [class.error]="touched('name') && invalid('name')"
                   placeholder="e.g. Kampala Central Monitor"
                 />
-                @if (touched('name') && invalid('name')) {
-                  <span class="eco-field-error"
-                    >⚠ Station name is required.</span
-                  >
+                @if (f['name'].touched && f['name'].invalid) {
+                  <span class="eco-field-error">Name is required.</span>
                 }
               </div>
 
-              <!-- Country -->
               <div class="eco-form-field">
                 <label class="eco-label">Country *</label>
                 <input
                   formControlName="country"
                   class="eco-input"
-                  [class.error]="touched('country') && invalid('country')"
                   placeholder="Uganda"
                 />
-                @if (touched('country') && invalid('country')) {
-                  <span class="eco-field-error">⚠ Country is required.</span>
+                @if (f['country'].touched && f['country'].invalid) {
+                  <span class="eco-field-error">Required.</span>
                 }
               </div>
 
-              <!-- City -->
               <div class="eco-form-field">
                 <label class="eco-label">City *</label>
                 <input
                   formControlName="city"
                   class="eco-input"
-                  [class.error]="touched('city') && invalid('city')"
                   placeholder="Kampala"
                 />
-                @if (touched('city') && invalid('city')) {
-                  <span class="eco-field-error">⚠ City is required.</span>
+                @if (f['city'].touched && f['city'].invalid) {
+                  <span class="eco-field-error">Required.</span>
                 }
               </div>
 
-              <!-- Latitude -->
               <div class="eco-form-field">
                 <label class="eco-label">Latitude *</label>
                 <input
@@ -100,17 +76,15 @@ import { Station } from '../../../../core/models';
                   type="number"
                   step="any"
                   class="eco-input"
-                  [class.error]="touched('latitude') && invalid('latitude')"
                   placeholder="0.3476"
                 />
-                @if (touched('latitude') && invalid('latitude')) {
+                @if (f['latitude'].touched && f['latitude'].invalid) {
                   <span class="eco-field-error"
-                    >⚠ Valid latitude (−90 to 90) required.</span
+                    >Valid latitude (−90 to 90).</span
                   >
                 }
               </div>
 
-              <!-- Longitude -->
               <div class="eco-form-field">
                 <label class="eco-label">Longitude *</label>
                 <input
@@ -118,38 +92,32 @@ import { Station } from '../../../../core/models';
                   type="number"
                   step="any"
                   class="eco-input"
-                  [class.error]="touched('longitude') && invalid('longitude')"
                   placeholder="32.5825"
                 />
-                @if (touched('longitude') && invalid('longitude')) {
+                @if (f['longitude'].touched && f['longitude'].invalid) {
                   <span class="eco-field-error"
-                    >⚠ Valid longitude (−180 to 180) required.</span
+                    >Valid longitude (−180 to 180).</span
                   >
                 }
               </div>
 
-              <!-- Type -->
               <div class="eco-form-field">
                 <label class="eco-label">Station type *</label>
-                <select
-                  formControlName="type"
-                  class="eco-input"
-                  [class.error]="touched('type') && invalid('type')"
-                >
-                  <option value="">Select a type…</option>
+                <select formControlName="type" class="eco-input">
+                  <option value="">Select type</option>
                   <option value="air_quality">Air quality</option>
                   <option value="weather">Weather</option>
                   <option value="emissions">Emissions</option>
                 </select>
-                @if (touched('type') && invalid('type')) {
-                  <span class="eco-field-error"
-                    >⚠ Please select a station type.</span
-                  >
+                @if (f['type'].touched && f['type'].invalid) {
+                  <span class="eco-field-error">Required.</span>
                 }
               </div>
 
-              <!-- Active toggle -->
-              <div class="eco-form-field" style="justify-content:flex-end">
+              <div
+                class="eco-form-field"
+                style="justify-content:flex-end;padding-bottom:4px;"
+              >
                 <label class="eco-label">Status</label>
                 <div class="eco-toggle-wrap" (click)="toggleActive()">
                   <div
@@ -164,32 +132,30 @@ import { Station } from '../../../../core/models';
                 </div>
               </div>
             </div>
-          </form>
-        </div>
 
-        <!-- Footer -->
-        <div class="eco-modal-footer">
-          <button
-            type="button"
-            (click)="cancel.emit()"
-            class="eco-btn eco-btn-ghost"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            form="station-form"
-            class="eco-btn eco-btn-primary"
-            [disabled]="saving()"
-          >
-            @if (saving()) {
-              <span class="eco-spinner"></span>
-              Saving…
-            } @else {
-              {{ isEdit() ? 'Save changes' : 'Create station' }}
+            @if (serverError()) {
+              <div class="eco-alert eco-alert-error" style="margin-top:1rem;">
+                {{ serverError() }}
+              </div>
             }
-          </button>
-        </div>
+          </div>
+
+          <div class="eco-modal-footer">
+            <button
+              type="button"
+              (click)="cancel.emit()"
+              class="eco-btn-outlined"
+            >
+              Cancel
+            </button>
+            <button type="submit" [disabled]="saving()" class="eco-btn-primary">
+              @if (saving()) {
+                <span class="eco-spinner"></span>
+              }
+              {{ isEdit() ? 'Save changes' : 'Create station' }}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   `,

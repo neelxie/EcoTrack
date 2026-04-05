@@ -8,71 +8,68 @@ import { ReadingSummary } from '../../../../core/models';
   imports: [CommonModule],
   template: `
     @if (summary) {
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div class="eco-card text-center">
-          <p
-            class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1"
-          >
-            Average
-          </p>
-          <p class="text-2xl font-semibold text-primary">
-            {{ summary.avg | number: '1.2-2' }}
-            <span class="text-sm font-normal text-gray-400">{{
-              summary.unit
-            }}</span>
-          </p>
+      <div class="eco-kpi-grid">
+        <div class="eco-kpi-card">
+          <div class="eco-kpi-icon eco-kpi-icon-blue">📊</div>
+          <div>
+            <p class="eco-kpi-label">Average</p>
+            <p class="eco-kpi-value" style="font-size:1.5rem;">
+              {{ summary.avg | number: '1.2-2' }}
+              <span style="font-size:0.875rem;font-weight:400;color:#9ca3af;">{{
+                summary.unit
+              }}</span>
+            </p>
+          </div>
         </div>
-
-        <div class="eco-card text-center">
-          <p
-            class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1"
-          >
-            Minimum
-          </p>
-          <p class="text-2xl font-semibold text-secondary">
-            {{ summary.min | number: '1.2-2' }}
-            <span class="text-sm font-normal text-gray-400">{{
-              summary.unit
-            }}</span>
-          </p>
+        <div class="eco-kpi-card">
+          <div class="eco-kpi-icon eco-kpi-icon-green">📉</div>
+          <div>
+            <p class="eco-kpi-label">Minimum</p>
+            <p class="eco-kpi-value" style="font-size:1.5rem;color:#00897b;">
+              {{ summary.min | number: '1.2-2' }}
+              <span style="font-size:0.875rem;font-weight:400;color:#9ca3af;">{{
+                summary.unit
+              }}</span>
+            </p>
+          </div>
         </div>
-
-        <div class="eco-card text-center">
-          <p
-            class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1"
-          >
-            Maximum
-          </p>
-          <p class="text-2xl font-semibold text-error">
-            {{ summary.max | number: '1.2-2' }}
-            <span class="text-sm font-normal text-gray-400">{{
-              summary.unit
-            }}</span>
-          </p>
+        <div class="eco-kpi-card">
+          <div class="eco-kpi-icon eco-kpi-icon-yellow">📈</div>
+          <div>
+            <p class="eco-kpi-label">Maximum</p>
+            <p class="eco-kpi-value" style="font-size:1.5rem;color:#c62828;">
+              {{ summary.max | number: '1.2-2' }}
+              <span style="font-size:0.875rem;font-weight:400;color:#9ca3af;">{{
+                summary.unit
+              }}</span>
+            </p>
+          </div>
         </div>
-
-        <div class="eco-card text-center">
-          <p
-            class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1"
-          >
-            Data points
-          </p>
-          <p class="text-2xl font-semibold text-gray-800">
-            {{ summary.count | number }}
-          </p>
+        <div class="eco-kpi-card">
+          <div class="eco-kpi-icon eco-kpi-icon-purple">🔢</div>
+          <div>
+            <p class="eco-kpi-label">Data points</p>
+            <p class="eco-kpi-value" style="font-size:1.5rem;">
+              {{ summary.count | number }}
+            </p>
+          </div>
         </div>
       </div>
     } @else {
-      <!-- Skeleton -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="eco-kpi-grid">
         @for (i of [1, 2, 3, 4]; track i) {
-          <div class="eco-card">
+          <div class="eco-kpi-card">
             <div
-              class="h-3 bg-gray-100 rounded animate-pulse mb-3 w-16 mx-auto"
+              class="eco-skeleton"
+              style="width:48px;height:48px;border-radius:12px;flex-shrink:0;"
             ></div>
-            <div
-              class="h-8 bg-gray-100 rounded animate-pulse mx-auto w-24"
-            ></div>
+            <div style="flex:1;">
+              <div
+                class="eco-skeleton"
+                style="height:10px;width:60px;margin-bottom:8px;"
+              ></div>
+              <div class="eco-skeleton" style="height:24px;width:80px;"></div>
+            </div>
           </div>
         }
       </div>
