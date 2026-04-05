@@ -2,16 +2,16 @@ import { Component, OnInit, OnDestroy, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
 
-import { ShellComponent } from '../../../shared/components/shell/shell.component';
-import { AlertListComponent } from '../components/alert-list/alert-list.component';
+import { ShellComponent } from '../../shared/components/shell/shell.component';
+import { AlertListComponent } from '../alerts/components/alert-list/alert-list.component';
 import {
   AlertFormComponent,
   AlertPayload,
-} from '../components/alert-form/alert-form.component';
+} from '../alerts/components/alert-form/alert-form.component';
 
-import { AlertService } from '../../../core/services/alert.services';
-import { StationService } from '../../../core/services/station.service';
-import { Alert, Station } from '../../../core/models';
+import { AlertService } from '../../core/services/alert.services';
+import { StationService } from '../../core/services/station.service';
+import { Alert, Station } from '../../core/models';
 
 @Component({
   selector: 'app-alerts',
