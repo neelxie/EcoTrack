@@ -55,16 +55,20 @@ const ICONS: Record<string, L.DivIcon> = {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="eco-card p-0 overflow-hidden">
+    <div class="eco-card" style="padding:0;overflow:hidden;">
       <div
-        class="px-4 py-3 border-b border-gray-100 flex items-center justify-between"
+        style="padding:0.75rem 1rem;border-bottom:1px solid #f3f4f6;
+                display:flex;align-items:center;justify-content:space-between;"
       >
-        <h2 class="text-sm font-semibold text-gray-700">Station map</h2>
-        <div class="flex items-center gap-3 text-xs text-gray-500">
+        <h2 class="eco-section-title">Station map</h2>
+        <div style="display:flex;align-items:center;gap:12px;">
           @for (entry of legend; track entry.label) {
-            <span class="flex items-center gap-1">
+            <span
+              style="display:flex;align-items:center;gap:4px;
+                       font-size:0.75rem;color:#6b7280;"
+            >
               <span
-                class="w-3 h-3 rounded-full inline-block"
+                style="width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0;"
                 [style.background]="entry.color"
               ></span>
               {{ entry.label }}
@@ -72,7 +76,7 @@ const ICONS: Record<string, L.DivIcon> = {
           }
         </div>
       </div>
-      <div #mapEl style="height: 340px; width: 100%;"></div>
+      <div #mapEl style="height:340px;width:100%;"></div>
     </div>
   `,
 })
