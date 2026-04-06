@@ -13,6 +13,9 @@ nixPkgs = [
   "php84Extensions.dom",
   "php84Extensions.fileinfo",
   "php84Extensions.ctype",
+  "php84Extensions.gd",
+  "php84Extensions.intl",
+  "php84Extensions.exif",
   "composer"
 ]
 
