@@ -11,6 +11,8 @@ vendor/
 # Angular
 frontend/node_modules/
 frontend/dist/
+frontend/.env
+frontend/*.log
 
 # Drizzle
 drizzle/node_modules/
